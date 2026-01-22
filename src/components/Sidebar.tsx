@@ -18,7 +18,7 @@ export default function Sidebar() {
     <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-zinc-200 bg-white px-4 py-6">
       <div className="px-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Admin Console
+          Admin control panel
         </p>
         <h1 className="mt-2 text-xl font-semibold text-zinc-900">HexWOrm</h1>
       </div>
@@ -41,7 +41,6 @@ export default function Sidebar() {
         })}
       </nav>
       <div className="rounded-lg border border-zinc-500 bg-zinc-900 p-3 text-xs text-zinc-500 ">
-        Coming soon: user profiles, billing, and team access.
       </div>
     </aside>
   );

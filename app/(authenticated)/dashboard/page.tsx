@@ -8,7 +8,7 @@ export default function DashboardPage() {
         </p>
       </div>
       <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500">
-        Coming next: KPI widgets, deliverability alerts, and performance charts.
+        soon
       </div>
     </section>
   );

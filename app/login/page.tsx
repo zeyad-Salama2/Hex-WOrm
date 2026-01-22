@@ -14,8 +14,8 @@ export default function LoginPage() {
           </p>
         </div>
         <div className="mt-8 space-y-4">
-          <div className="rounded-xl border border-dashed border-zinc-200 px-4 py-6 text-sm text-zinc-500">
-            Coming next: SSO, password reset, and MFA enrollment.
+          <div className="rounded-xl border border  -dashed border-zinc-200 px-4 py-6 text-sm text-zinc-500">
+          login is not yet implemented.
           </div>
           <button className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white hover:bg-zinc-800">
             Continue
