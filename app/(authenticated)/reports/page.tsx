@@ -8,7 +8,7 @@ export default function ReportsPage() {
         </p>
       </div>
       <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500">
-        Coming next: attribution dashboards, export center, and benchmarks.
+        soon
       </div>
     </section>
   );

@@ -8,7 +8,7 @@ export default function SettingsPage() {
         </p>
       </div>
       <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500">
-        Coming next: sender domains, role management, and API tokens.
+        soon
       </div>
     </section>
   );
