@@ -8,7 +8,7 @@ export default function CampaignsPage() {
         </p>
       </div>
       <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500">
-        Coming next: campaign calendar, segment picker, and approval status.
+        soon
       </div>
     </section>
   );
