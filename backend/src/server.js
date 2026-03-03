@@ -1,12 +1,41 @@
+require("dotenv").config();
+
 const express = require("express");
+
 const cors = require("cors");
+const prisma = require("../prisma/prisma.js");
+
+const mainRouter = require("./routes/app_routes.js");
+const notFoundMiddleware = require("./middleware/not_found.js");
+const errorHandlerMiddleware = require("./middleware/error_handler.js");
+
+
+
+// Middleware Wall
 
 const app = express();
 app.use(cors());
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// app.use(cookieParser());
 
-app.get("/", (req, res) => res.send("Backend running. Try /health"));
-app.get("/health", (req, res) => res.json({ ok: true }));
+// '/' and '/health' have both been moved into routes/app_routes.js
+app.use("/",mainRouter);
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Backend on http://localhost:${4000}`));
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+
+// Middleware Wall Over :)
+
+const port = process.env.PORT || 4000;
+
+const start = async () => {
+    try {
+        app.listen(port, () => console.log(`Backend on http://localhost:${4000}`));
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+start();
