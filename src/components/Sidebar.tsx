@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Panel from "@/src/components/ui/Panel";
 
 type NavItem = {
   href: string;
@@ -76,15 +77,15 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-70 flex-col border-r border-zinc-200 bg-white px-4 py-6">
+    <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-[color:var(--border)] bg-[color:var(--panel)] px-4 py-6">
       <div className="px-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Admin control panel
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+          ADMIN CONTROL PANEL
         </p>
-        <h1 className="mt-2 text-xl font-semibold text-zinc-900">HexWOrm</h1>
+        <h1 className="mt-2 text-2xl font-semibold text-[color:var(--text)]">HexWOrm</h1>
       </div>
 
-      <nav className="mt-8 flex flex-1 flex-col gap-1">
+      <nav className="mt-8 flex flex-1 flex-col gap-2">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -95,10 +96,10 @@ export default function Sidebar() {
               key={`${item.href}-${item.label}`}
               href={item.href}
               className={[
-                "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition",
+                "relative flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-200",
                 isActive
-                  ? "bg-zinc-900 text-green-300 hover:bg-zinc-800"
-                  : "text-zinc-600 hover:bg-yellow-500 hover:text-zinc-900",
+                  ? "border border-cyan-400/20 bg-[color:var(--panel2)] text-[color:var(--accent)] shadow-[inset_3px_0_0_0_var(--accent)]"
+                  : "text-[color:var(--muted)] hover:bg-white/5 hover:text-[color:var(--text)]",
               ].join(" ")}
             >
               <Icon className="mr-3 h-4 w-4 text-current" />
@@ -108,9 +109,9 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-500">
-        Logged in as <span className="font-medium text-zinc-700">Operator</span>
-      </div>
+      <Panel className="rounded-2xl text-xs text-[color:var(--muted)]">
+        Logged in as <span className="font-medium text-[color:var(--text)]">Operator</span>
+      </Panel>
     </aside>
   );
 }

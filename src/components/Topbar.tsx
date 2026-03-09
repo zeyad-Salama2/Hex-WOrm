@@ -1,8 +1,9 @@
-"use client"; 
+"use client";
 // Needed because we will use document.cookie and window.location
 
-export default function Topbar() {
+import CyberButton from "@/src/components/ui/CyberButton";
 
+export default function Topbar() {
   // ==========================
   // Logout Function
   // ==========================
@@ -16,26 +17,19 @@ export default function Topbar() {
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-zinc-200 bg-white px-8">
-      
+    <header className="flex h-16 items-center justify-between border-b border-[color:var(--border)] bg-[color:var(--panel)] px-8">
       {/* Left Side - Title */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
-          Overview
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+          OVERVIEW
         </p>
-        <p className="text-sm font-medium text-zinc-800">
-          Admin – phishing simulation platform
+        <p className="text-sm font-medium text-[color:var(--muted)]">
+          Admin - phishing simulation platform
         </p>
       </div>
 
       {/* Right Side - Logout Button */}
-      <button
-        onClick={handleLogout}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
-      >
-        Logout
-      </button>
-
+      <CyberButton onClick={handleLogout}>Logout</CyberButton>
     </header>
   );
 }
