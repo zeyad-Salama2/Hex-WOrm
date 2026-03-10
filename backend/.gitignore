@@ -6,3 +6,4 @@ frontend/.env
 .DS_Store
 Thumbs.db
 npm-debug.log*
+backend\generated
