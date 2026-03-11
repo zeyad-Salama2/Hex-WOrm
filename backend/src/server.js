@@ -6,6 +6,7 @@ const cors = require("cors");
 const prisma = require("../prisma/prisma.js");
 
 const mainRouter = require("./routes/app_routes.js");
+const campaignRouter = require("./routes/campaign_routes.js"); // NEW
 const notFoundMiddleware = require("./middleware/not_found.js");
 const errorHandlerMiddleware = require("./middleware/error_handler.js");
 
@@ -22,6 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // '/' and '/health' have both been moved into routes/app_routes.js
 app.use("/",mainRouter);
+
+// Campaign routes
+app.use("/campaigns", campaignRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
