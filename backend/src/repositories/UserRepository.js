@@ -25,27 +25,32 @@ class UserRepository {
     }
     async create(_name,_email,_password) {
         try {
-            // Checking if a user with the same email exists
-            const existingUser = await prisma.user.findFirst({
-                where:
-                {email:_email,}
+            // Let the database unique index enforce duplicate-email checks.
+            const createdUser = await prisma.user.create({
+                data: {
+                    name: _name,
+                    email:_email,
+                    passwordHash: _password,
+                }
             })
-            // If a user doesn't exist with the given email address, then create new user
-            if(existingUser === null) {
-                const createdUser = await prisma.user.create({
-                    data: {
-                        name: _name,
-                        email:_email,
-                        passwordHash: _password,
-                    }
-                })
-                return createdUser;
-            } else {
-                // If a user does exist with the given email, then throws an error
-                throw new CustomAPIError("Email is already in use, please try again", 401);
-            }
+            return createdUser;
         } catch(err) {
-            console.log(err);
+            console.error("[UserRepository.create] prisma.user.create failed:", err);
+            // Prisma unique constraint violation on User.email
+            if (err?.code === "P2002") {
+                throw new CustomAPIError("Email is already in use, please try again", StatusCodes.CONFLICT);
+            }
+
+            // Database connectivity issues (host unreachable / blocked / refused)
+            if (
+                err?.code === "P1001" ||
+                err?.code === "EACCES" ||
+                err?.code === "ECONNREFUSED" ||
+                err?.code === "ETIMEDOUT"
+            ) {
+                throw new CustomAPIError("Database connection failed. Please verify DATABASE_URL and database network access.", StatusCodes.SERVICE_UNAVAILABLE);
+            }
+
             throw err;
         }
     }

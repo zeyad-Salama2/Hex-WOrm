@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #08111f;
+  --panel: #0d1b31;
+  --panel2: #122544;
+  --border: #1f3a63;
+  --text: #e6f1ff;
+  --muted: #8fa9c9;
+  --accent: #22d3ee;
+  --accent2: #3b82f6;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+  Theme usage examples in Tailwind:
+  bg-[color:var(--bg)]
+  bg-[color:var(--panel)]
+  bg-[color:var(--panel2)]
+  border-[color:var(--border)]
+  text-[color:var(--text)]
+  text-[color:var(--muted)]
+  text-[color:var(--accent)]
+  from-[color:var(--accent)] to-[color:var(--accent2)]
+*/

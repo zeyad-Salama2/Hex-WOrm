@@ -3,7 +3,8 @@ const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("../generated/prisma/client.js");
 const bcrypt = require("bcrypt");
 
-const connectionString = `${process.env.DATABASE_URL}`;
+const localDatabaseUrl = "postgresql://postgres:postgres@localhost:5432/phishing_sim_dashboard?schema=public";
+const connectionString = process.env.DATABASE_URL || localDatabaseUrl;
 
 const adapter = new PrismaPg({ connectionString });
 

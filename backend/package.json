@@ -4,7 +4,12 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon src/server.js",
+    "db:start": "docker compose up -d",
+    "db:stop": "docker compose down",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "db:setup": "npm run prisma:generate && npm run prisma:migrate"
   },
   "keywords": [],
   "author": "",
