@@ -8,13 +8,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { emailSchema, passwordSchema } from "@/src/lib/validation/auth";
 
 // Zod schema defines the shape + rules for our login form data.
 // - email must be a valid email format
-// - password must be at least 6 characters
+// - password must meet the security requirements
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
 // Infer TypeScript type directly from schema so types stay in sync with validation rules.
@@ -117,7 +118,7 @@ export default function LoginPage() {
               type="password"
               {...register("password")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="At least 6 characters"
+              placeholder="8+ chars, uppercase, number, special character"
               autoComplete="current-password"
             />
             {errors.password && (

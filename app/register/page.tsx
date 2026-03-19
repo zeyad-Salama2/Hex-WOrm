@@ -9,17 +9,18 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { emailSchema, passwordSchema } from "@/src/lib/validation/auth";
 
 // Zod schema defines field rules and cross-field validation.
 // - fullName: required
 // - email: valid email format
-// - password: minimum 6 chars
+// - password: must meet the security requirements
 // - confirmPassword: must match password
 const registerSchema = z
   .object({
-    fullName: z.string().min(1, "Full name is required."),
-    email: z.string().email("Please enter a valid email address."),
-    password: z.string().min(6, "Password must be at least 6 characters."),
+    fullName: z.string().trim().min(1, "Full name is required."),
+    email: emailSchema,
+    password: passwordSchema,
     confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -166,7 +167,7 @@ export default function RegisterPage() {
               type="password"
               {...register("password")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="At least 6 characters"
+              placeholder="8+ chars, uppercase, number, special character"
               autoComplete="new-password"
             />
             {errors.password && (
