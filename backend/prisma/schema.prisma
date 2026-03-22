@@ -1,23 +1,20 @@
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  //DO NOT UPDATE PRISMA TO VERSION 7 KEEP IT AS VERSION 6 
-  //IT OVERCOMPLICATES IT FOR US FOR NO REASON
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  name        String
-  email        String   @unique
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
   passwordHash String
-  role         Role     @default(READ_ONLY)
-  createdAt    DateTime @default(now())
-
+  role         Role       @default(READ_ONLY)
+  createdAt    DateTime   @default(now())
+  name         String
   campaigns    Campaign[]
 }
 
@@ -27,12 +24,10 @@ model Campaign {
   status      CampaignStatus @default(DRAFT)
   scheduledAt DateTime?
   createdAt   DateTime       @default(now())
-
   createdById Int
   createdBy   User           @relation(fields: [createdById], references: [id])
-
-  targets     Target[]
   events      Event[]
+  targets     Target[]
 }
 
 model Target {
@@ -40,22 +35,18 @@ model Target {
   email      String
   department String?
   token      String   @unique
-
   campaignId Int
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
-
   events     Event[]
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
 }
 
 model Event {
   id         Int       @id @default(autoincrement())
   type       EventType
   createdAt  DateTime  @default(now())
-
   campaignId Int
-  campaign   Campaign  @relation(fields: [campaignId], references: [id])
-
   targetId   Int
+  campaign   Campaign  @relation(fields: [campaignId], references: [id])
   target     Target    @relation(fields: [targetId], references: [id])
 }
 

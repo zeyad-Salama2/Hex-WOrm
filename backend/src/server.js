@@ -23,7 +23,7 @@ app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 // Middleware Wall Over :)
 
-const port = process.env.PORT || 4000;
+const port = process.env.APP_PORT || process.env.PORT || 4000;
 
 const verifyDatabaseConnection = async () => {
   try {
@@ -47,7 +47,7 @@ const verifyDatabaseConnection = async () => {
 const start = async () => {
   try {
     await verifyDatabaseConnection();
-    app.listen(port, () => console.log(`Backend on http://localhost:${port}`));
+    app.listen(port, () => console.log(`[startup] Backend on http://localhost:${port}`));
   } catch (error) {
     console.error("[startup] Backend failed to start:", error);
     process.exit(1);

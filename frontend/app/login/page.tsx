@@ -14,13 +14,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // - email must be a valid email format
 // - password must be at least 6 characters
 const loginSchema = z.object({
-  name: z.string().min(1, "Name is required."),
   email: z.string().email("Please enter a valid email address."),
   password: z.string().min(6, "Password must be at least 6 characters."),
 });
 
 // Infer TypeScript type directly from schema so types stay in sync with validation rules.
 type LoginForm = z.infer<typeof loginSchema>;
+
+function setAuthCookie(token: string) {
+  document.cookie = `token=${token}; path=/`;
+}
+
+function buildApiUrl(path: string) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
+
+  return new URL(path, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,7 +49,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
     mode: "onChange", // Re-validate while typing so button state updates live.
     defaultValues: {
-      name: "",
       email: "",
       password: "",
     },
@@ -51,8 +59,9 @@ export default function LoginPage() {
   const onValidSubmit = async (data: LoginForm) => {
     setSubmitError("");
     try {
-      const loginUrl = `${process.env.NEXT_PUBLIC_API_URL}/login`;
-      console.log("[login] sending request to:", loginUrl);
+      const loginUrl = buildApiUrl("login");
+      console.log("[login] NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+      console.log("[login] final request URL:", loginUrl);
 
       const response = await fetch(loginUrl, {
         method: "POST",
@@ -86,7 +95,7 @@ export default function LoginPage() {
         return;
       }
 
-      document.cookie = `token=${payload.token}; path=/`;
+      setAuthCookie(payload.token);
       router.push("/dashboard");
     } catch (error) {
       console.error("[login] request failed:", error);
@@ -130,25 +139,6 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit(onValidSubmit)} className="mt-8 space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium text-zinc-200">
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              {...register("name")}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="Your full name"
-              autoComplete="name"
-            />
-            {errors.name && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
-
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-zinc-200">
               Email

@@ -1208,13 +1208,13 @@ export namespace Prisma {
    */
 
   export type CampaignCountOutputType = {
-    targets: number
     events: number
+    targets: number
   }
 
   export type CampaignCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    targets?: boolean | CampaignCountOutputTypeCountTargetsArgs
     events?: boolean | CampaignCountOutputTypeCountEventsArgs
+    targets?: boolean | CampaignCountOutputTypeCountTargetsArgs
   }
 
   // Custom InputTypes
@@ -1231,15 +1231,15 @@ export namespace Prisma {
   /**
    * CampaignCountOutputType without action
    */
-  export type CampaignCountOutputTypeCountTargetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TargetWhereInput
+  export type CampaignCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventWhereInput
   }
 
   /**
    * CampaignCountOutputType without action
    */
-  export type CampaignCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: EventWhereInput
+  export type CampaignCountOutputTypeCountTargetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TargetWhereInput
   }
 
 
@@ -1300,29 +1300,29 @@ export namespace Prisma {
 
   export type UserMinAggregateOutputType = {
     id: number | null
-    name: string | null
     email: string | null
     passwordHash: string | null
     role: $Enums.Role | null
     createdAt: Date | null
+    name: string | null
   }
 
   export type UserMaxAggregateOutputType = {
     id: number | null
-    name: string | null
     email: string | null
     passwordHash: string | null
     role: $Enums.Role | null
     createdAt: Date | null
+    name: string | null
   }
 
   export type UserCountAggregateOutputType = {
     id: number
-    name: number
     email: number
     passwordHash: number
     role: number
     createdAt: number
+    name: number
     _all: number
   }
 
@@ -1337,29 +1337,29 @@ export namespace Prisma {
 
   export type UserMinAggregateInputType = {
     id?: true
-    name?: true
     email?: true
     passwordHash?: true
     role?: true
     createdAt?: true
+    name?: true
   }
 
   export type UserMaxAggregateInputType = {
     id?: true
-    name?: true
     email?: true
     passwordHash?: true
     role?: true
     createdAt?: true
+    name?: true
   }
 
   export type UserCountAggregateInputType = {
     id?: true
-    name?: true
     email?: true
     passwordHash?: true
     role?: true
     createdAt?: true
+    name?: true
     _all?: true
   }
 
@@ -1451,11 +1451,11 @@ export namespace Prisma {
 
   export type UserGroupByOutputType = {
     id: number
-    name: string
     email: string
     passwordHash: string
     role: $Enums.Role
     createdAt: Date
+    name: string
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -1479,43 +1479,43 @@ export namespace Prisma {
 
   export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
     email?: boolean
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+    name?: boolean
     campaigns?: boolean | User$campaignsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
     email?: boolean
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+    name?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    name?: boolean
     email?: boolean
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+    name?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
     id?: boolean
-    name?: boolean
     email?: boolean
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+    name?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "createdAt" | "name", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     campaigns?: boolean | User$campaignsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1530,11 +1530,11 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      name: string
       email: string
       passwordHash: string
       role: $Enums.Role
       createdAt: Date
+      name: string
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -1960,11 +1960,11 @@ export namespace Prisma {
    */
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'Int'>
-    readonly name: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly name: FieldRef<"User", 'String'>
   }
     
 
@@ -2606,8 +2606,8 @@ export namespace Prisma {
     createdAt?: boolean
     createdById?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
-    targets?: boolean | Campaign$targetsArgs<ExtArgs>
     events?: boolean | Campaign$eventsArgs<ExtArgs>
+    targets?: boolean | Campaign$targetsArgs<ExtArgs>
     _count?: boolean | CampaignCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["campaign"]>
 
@@ -2643,8 +2643,8 @@ export namespace Prisma {
   export type CampaignOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "status" | "scheduledAt" | "createdAt" | "createdById", ExtArgs["result"]["campaign"]>
   export type CampaignInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
-    targets?: boolean | Campaign$targetsArgs<ExtArgs>
     events?: boolean | Campaign$eventsArgs<ExtArgs>
+    targets?: boolean | Campaign$targetsArgs<ExtArgs>
     _count?: boolean | CampaignCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CampaignIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2658,8 +2658,8 @@ export namespace Prisma {
     name: "Campaign"
     objects: {
       createdBy: Prisma.$UserPayload<ExtArgs>
-      targets: Prisma.$TargetPayload<ExtArgs>[]
       events: Prisma.$EventPayload<ExtArgs>[]
+      targets: Prisma.$TargetPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -3063,8 +3063,8 @@ export namespace Prisma {
   export interface Prisma__CampaignClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    targets<T extends Campaign$targetsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$targetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     events<T extends Campaign$eventsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    targets<T extends Campaign$targetsArgs<ExtArgs> = {}>(args?: Subset<T, Campaign$targetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3496,30 +3496,6 @@ export namespace Prisma {
   }
 
   /**
-   * Campaign.targets
-   */
-  export type Campaign$targetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Target
-     */
-    select?: TargetSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Target
-     */
-    omit?: TargetOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TargetInclude<ExtArgs> | null
-    where?: TargetWhereInput
-    orderBy?: TargetOrderByWithRelationInput | TargetOrderByWithRelationInput[]
-    cursor?: TargetWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TargetScalarFieldEnum | TargetScalarFieldEnum[]
-  }
-
-  /**
    * Campaign.events
    */
   export type Campaign$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3541,6 +3517,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: EventScalarFieldEnum | EventScalarFieldEnum[]
+  }
+
+  /**
+   * Campaign.targets
+   */
+  export type Campaign$targetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Target
+     */
+    select?: TargetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Target
+     */
+    omit?: TargetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TargetInclude<ExtArgs> | null
+    where?: TargetWhereInput
+    orderBy?: TargetOrderByWithRelationInput | TargetOrderByWithRelationInput[]
+    cursor?: TargetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TargetScalarFieldEnum | TargetScalarFieldEnum[]
   }
 
   /**
@@ -3764,8 +3764,8 @@ export namespace Prisma {
     department?: boolean
     token?: boolean
     campaignId?: boolean
-    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
     events?: boolean | Target$eventsArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
     _count?: boolean | TargetCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["target"]>
 
@@ -3797,8 +3797,8 @@ export namespace Prisma {
 
   export type TargetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "department" | "token" | "campaignId", ExtArgs["result"]["target"]>
   export type TargetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
     events?: boolean | Target$eventsArgs<ExtArgs>
+    campaign?: boolean | CampaignDefaultArgs<ExtArgs>
     _count?: boolean | TargetCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TargetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3811,8 +3811,8 @@ export namespace Prisma {
   export type $TargetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Target"
     objects: {
-      campaign: Prisma.$CampaignPayload<ExtArgs>
       events: Prisma.$EventPayload<ExtArgs>[]
+      campaign: Prisma.$CampaignPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -4214,8 +4214,8 @@ export namespace Prisma {
    */
   export interface Prisma__TargetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    campaign<T extends CampaignDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CampaignDefaultArgs<ExtArgs>>): Prisma__CampaignClient<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     events<T extends Target$eventsArgs<ExtArgs> = {}>(args?: Subset<T, Target$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    campaign<T extends CampaignDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CampaignDefaultArgs<ExtArgs>>): Prisma__CampaignClient<$Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5812,11 +5812,11 @@ export namespace Prisma {
 
   export const UserScalarFieldEnum: {
     id: 'id',
-    name: 'name',
     email: 'email',
     passwordHash: 'passwordHash',
     role: 'role',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    name: 'name'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -5991,21 +5991,21 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     id?: IntFilter<"User"> | number
-    name?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     createdAt?: DateTimeFilter<"User"> | Date | string
+    name?: StringFilter<"User"> | string
     campaigns?: CampaignListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
-    name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+    name?: SortOrder
     campaigns?: CampaignOrderByRelationAggregateInput
   }
 
@@ -6015,20 +6015,20 @@ export namespace Prisma {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
-    name?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     createdAt?: DateTimeFilter<"User"> | Date | string
+    name?: StringFilter<"User"> | string
     campaigns?: CampaignListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
-    name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+    name?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -6041,11 +6041,11 @@ export namespace Prisma {
     OR?: UserScalarWhereWithAggregatesInput[]
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"User"> | number
-    name?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    name?: StringWithAggregatesFilter<"User"> | string
   }
 
   export type CampaignWhereInput = {
@@ -6059,8 +6059,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Campaign"> | Date | string
     createdById?: IntFilter<"Campaign"> | number
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-    targets?: TargetListRelationFilter
     events?: EventListRelationFilter
+    targets?: TargetListRelationFilter
   }
 
   export type CampaignOrderByWithRelationInput = {
@@ -6071,8 +6071,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdById?: SortOrder
     createdBy?: UserOrderByWithRelationInput
-    targets?: TargetOrderByRelationAggregateInput
     events?: EventOrderByRelationAggregateInput
+    targets?: TargetOrderByRelationAggregateInput
   }
 
   export type CampaignWhereUniqueInput = Prisma.AtLeast<{
@@ -6086,8 +6086,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Campaign"> | Date | string
     createdById?: IntFilter<"Campaign"> | number
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-    targets?: TargetListRelationFilter
     events?: EventListRelationFilter
+    targets?: TargetListRelationFilter
   }, "id">
 
   export type CampaignOrderByWithAggregationInput = {
@@ -6125,8 +6125,8 @@ export namespace Prisma {
     department?: StringNullableFilter<"Target"> | string | null
     token?: StringFilter<"Target"> | string
     campaignId?: IntFilter<"Target"> | number
-    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
     events?: EventListRelationFilter
+    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
   }
 
   export type TargetOrderByWithRelationInput = {
@@ -6135,8 +6135,8 @@ export namespace Prisma {
     department?: SortOrderInput | SortOrder
     token?: SortOrder
     campaignId?: SortOrder
-    campaign?: CampaignOrderByWithRelationInput
     events?: EventOrderByRelationAggregateInput
+    campaign?: CampaignOrderByWithRelationInput
   }
 
   export type TargetWhereUniqueInput = Prisma.AtLeast<{
@@ -6148,8 +6148,8 @@ export namespace Prisma {
     email?: StringFilter<"Target"> | string
     department?: StringNullableFilter<"Target"> | string | null
     campaignId?: IntFilter<"Target"> | number
-    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
     events?: EventListRelationFilter
+    campaign?: XOR<CampaignScalarRelationFilter, CampaignWhereInput>
   }, "id" | "token">
 
   export type TargetOrderByWithAggregationInput = {
@@ -6237,67 +6237,67 @@ export namespace Prisma {
   }
 
   export type UserCreateInput = {
-    name: string
     email: string
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+    name: string
     campaigns?: CampaignCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUncheckedCreateInput = {
     id?: number
-    name: string
     email: string
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+    name: string
     campaigns?: CampaignUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
   export type UserUpdateInput = {
-    name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
     campaigns?: CampaignUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
     campaigns?: CampaignUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
   export type UserCreateManyInput = {
     id?: number
-    name: string
     email: string
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+    name: string
   }
 
   export type UserUpdateManyMutationInput = {
-    name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
   }
 
   export type UserUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
   }
 
   export type CampaignCreateInput = {
@@ -6306,8 +6306,8 @@ export namespace Prisma {
     scheduledAt?: Date | string | null
     createdAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCampaignsInput
-    targets?: TargetCreateNestedManyWithoutCampaignInput
     events?: EventCreateNestedManyWithoutCampaignInput
+    targets?: TargetCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateInput = {
@@ -6317,8 +6317,8 @@ export namespace Prisma {
     scheduledAt?: Date | string | null
     createdAt?: Date | string
     createdById: number
-    targets?: TargetUncheckedCreateNestedManyWithoutCampaignInput
     events?: EventUncheckedCreateNestedManyWithoutCampaignInput
+    targets?: TargetUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUpdateInput = {
@@ -6327,8 +6327,8 @@ export namespace Prisma {
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCampaignsNestedInput
-    targets?: TargetUpdateManyWithoutCampaignNestedInput
     events?: EventUpdateManyWithoutCampaignNestedInput
+    targets?: TargetUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateInput = {
@@ -6338,8 +6338,8 @@ export namespace Prisma {
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: IntFieldUpdateOperationsInput | number
-    targets?: TargetUncheckedUpdateManyWithoutCampaignNestedInput
     events?: EventUncheckedUpdateManyWithoutCampaignNestedInput
+    targets?: TargetUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignCreateManyInput = {
@@ -6371,8 +6371,8 @@ export namespace Prisma {
     email: string
     department?: string | null
     token: string
-    campaign: CampaignCreateNestedOneWithoutTargetsInput
     events?: EventCreateNestedManyWithoutTargetInput
+    campaign: CampaignCreateNestedOneWithoutTargetsInput
   }
 
   export type TargetUncheckedCreateInput = {
@@ -6388,8 +6388,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     department?: NullableStringFieldUpdateOperationsInput | string | null
     token?: StringFieldUpdateOperationsInput | string
-    campaign?: CampaignUpdateOneRequiredWithoutTargetsNestedInput
     events?: EventUpdateManyWithoutTargetNestedInput
+    campaign?: CampaignUpdateOneRequiredWithoutTargetsNestedInput
   }
 
   export type TargetUncheckedUpdateInput = {
@@ -6530,11 +6530,11 @@ export namespace Prisma {
 
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+    name?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -6543,20 +6543,20 @@ export namespace Prisma {
 
   export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+    name?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
     id?: SortOrder
-    name?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+    name?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -6644,16 +6644,16 @@ export namespace Prisma {
     isNot?: UserWhereInput
   }
 
-  export type TargetListRelationFilter = {
-    every?: TargetWhereInput
-    some?: TargetWhereInput
-    none?: TargetWhereInput
-  }
-
   export type EventListRelationFilter = {
     every?: EventWhereInput
     some?: EventWhereInput
     none?: EventWhereInput
+  }
+
+  export type TargetListRelationFilter = {
+    every?: TargetWhereInput
+    some?: TargetWhereInput
+    none?: TargetWhereInput
   }
 
   export type SortOrderInput = {
@@ -6661,11 +6661,11 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
-  export type TargetOrderByRelationAggregateInput = {
+  export type EventOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type EventOrderByRelationAggregateInput = {
+  export type TargetOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -6928,13 +6928,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type TargetCreateNestedManyWithoutCampaignInput = {
-    create?: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput> | TargetCreateWithoutCampaignInput[] | TargetUncheckedCreateWithoutCampaignInput[]
-    connectOrCreate?: TargetCreateOrConnectWithoutCampaignInput | TargetCreateOrConnectWithoutCampaignInput[]
-    createMany?: TargetCreateManyCampaignInputEnvelope
-    connect?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
-  }
-
   export type EventCreateNestedManyWithoutCampaignInput = {
     create?: XOR<EventCreateWithoutCampaignInput, EventUncheckedCreateWithoutCampaignInput> | EventCreateWithoutCampaignInput[] | EventUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: EventCreateOrConnectWithoutCampaignInput | EventCreateOrConnectWithoutCampaignInput[]
@@ -6942,7 +6935,7 @@ export namespace Prisma {
     connect?: EventWhereUniqueInput | EventWhereUniqueInput[]
   }
 
-  export type TargetUncheckedCreateNestedManyWithoutCampaignInput = {
+  export type TargetCreateNestedManyWithoutCampaignInput = {
     create?: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput> | TargetCreateWithoutCampaignInput[] | TargetUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: TargetCreateOrConnectWithoutCampaignInput | TargetCreateOrConnectWithoutCampaignInput[]
     createMany?: TargetCreateManyCampaignInputEnvelope
@@ -6954,6 +6947,13 @@ export namespace Prisma {
     connectOrCreate?: EventCreateOrConnectWithoutCampaignInput | EventCreateOrConnectWithoutCampaignInput[]
     createMany?: EventCreateManyCampaignInputEnvelope
     connect?: EventWhereUniqueInput | EventWhereUniqueInput[]
+  }
+
+  export type TargetUncheckedCreateNestedManyWithoutCampaignInput = {
+    create?: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput> | TargetCreateWithoutCampaignInput[] | TargetUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: TargetCreateOrConnectWithoutCampaignInput | TargetCreateOrConnectWithoutCampaignInput[]
+    createMany?: TargetCreateManyCampaignInputEnvelope
+    connect?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
   }
 
   export type EnumCampaignStatusFieldUpdateOperationsInput = {
@@ -6972,20 +6972,6 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCampaignsInput, UserUpdateWithoutCampaignsInput>, UserUncheckedUpdateWithoutCampaignsInput>
   }
 
-  export type TargetUpdateManyWithoutCampaignNestedInput = {
-    create?: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput> | TargetCreateWithoutCampaignInput[] | TargetUncheckedCreateWithoutCampaignInput[]
-    connectOrCreate?: TargetCreateOrConnectWithoutCampaignInput | TargetCreateOrConnectWithoutCampaignInput[]
-    upsert?: TargetUpsertWithWhereUniqueWithoutCampaignInput | TargetUpsertWithWhereUniqueWithoutCampaignInput[]
-    createMany?: TargetCreateManyCampaignInputEnvelope
-    set?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
-    disconnect?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
-    delete?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
-    connect?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
-    update?: TargetUpdateWithWhereUniqueWithoutCampaignInput | TargetUpdateWithWhereUniqueWithoutCampaignInput[]
-    updateMany?: TargetUpdateManyWithWhereWithoutCampaignInput | TargetUpdateManyWithWhereWithoutCampaignInput[]
-    deleteMany?: TargetScalarWhereInput | TargetScalarWhereInput[]
-  }
-
   export type EventUpdateManyWithoutCampaignNestedInput = {
     create?: XOR<EventCreateWithoutCampaignInput, EventUncheckedCreateWithoutCampaignInput> | EventCreateWithoutCampaignInput[] | EventUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: EventCreateOrConnectWithoutCampaignInput | EventCreateOrConnectWithoutCampaignInput[]
@@ -7000,7 +6986,7 @@ export namespace Prisma {
     deleteMany?: EventScalarWhereInput | EventScalarWhereInput[]
   }
 
-  export type TargetUncheckedUpdateManyWithoutCampaignNestedInput = {
+  export type TargetUpdateManyWithoutCampaignNestedInput = {
     create?: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput> | TargetCreateWithoutCampaignInput[] | TargetUncheckedCreateWithoutCampaignInput[]
     connectOrCreate?: TargetCreateOrConnectWithoutCampaignInput | TargetCreateOrConnectWithoutCampaignInput[]
     upsert?: TargetUpsertWithWhereUniqueWithoutCampaignInput | TargetUpsertWithWhereUniqueWithoutCampaignInput[]
@@ -7028,10 +7014,18 @@ export namespace Prisma {
     deleteMany?: EventScalarWhereInput | EventScalarWhereInput[]
   }
 
-  export type CampaignCreateNestedOneWithoutTargetsInput = {
-    create?: XOR<CampaignCreateWithoutTargetsInput, CampaignUncheckedCreateWithoutTargetsInput>
-    connectOrCreate?: CampaignCreateOrConnectWithoutTargetsInput
-    connect?: CampaignWhereUniqueInput
+  export type TargetUncheckedUpdateManyWithoutCampaignNestedInput = {
+    create?: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput> | TargetCreateWithoutCampaignInput[] | TargetUncheckedCreateWithoutCampaignInput[]
+    connectOrCreate?: TargetCreateOrConnectWithoutCampaignInput | TargetCreateOrConnectWithoutCampaignInput[]
+    upsert?: TargetUpsertWithWhereUniqueWithoutCampaignInput | TargetUpsertWithWhereUniqueWithoutCampaignInput[]
+    createMany?: TargetCreateManyCampaignInputEnvelope
+    set?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
+    disconnect?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
+    delete?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
+    connect?: TargetWhereUniqueInput | TargetWhereUniqueInput[]
+    update?: TargetUpdateWithWhereUniqueWithoutCampaignInput | TargetUpdateWithWhereUniqueWithoutCampaignInput[]
+    updateMany?: TargetUpdateManyWithWhereWithoutCampaignInput | TargetUpdateManyWithWhereWithoutCampaignInput[]
+    deleteMany?: TargetScalarWhereInput | TargetScalarWhereInput[]
   }
 
   export type EventCreateNestedManyWithoutTargetInput = {
@@ -7039,6 +7033,12 @@ export namespace Prisma {
     connectOrCreate?: EventCreateOrConnectWithoutTargetInput | EventCreateOrConnectWithoutTargetInput[]
     createMany?: EventCreateManyTargetInputEnvelope
     connect?: EventWhereUniqueInput | EventWhereUniqueInput[]
+  }
+
+  export type CampaignCreateNestedOneWithoutTargetsInput = {
+    create?: XOR<CampaignCreateWithoutTargetsInput, CampaignUncheckedCreateWithoutTargetsInput>
+    connectOrCreate?: CampaignCreateOrConnectWithoutTargetsInput
+    connect?: CampaignWhereUniqueInput
   }
 
   export type EventUncheckedCreateNestedManyWithoutTargetInput = {
@@ -7050,14 +7050,6 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
-  }
-
-  export type CampaignUpdateOneRequiredWithoutTargetsNestedInput = {
-    create?: XOR<CampaignCreateWithoutTargetsInput, CampaignUncheckedCreateWithoutTargetsInput>
-    connectOrCreate?: CampaignCreateOrConnectWithoutTargetsInput
-    upsert?: CampaignUpsertWithoutTargetsInput
-    connect?: CampaignWhereUniqueInput
-    update?: XOR<XOR<CampaignUpdateToOneWithWhereWithoutTargetsInput, CampaignUpdateWithoutTargetsInput>, CampaignUncheckedUpdateWithoutTargetsInput>
   }
 
   export type EventUpdateManyWithoutTargetNestedInput = {
@@ -7072,6 +7064,14 @@ export namespace Prisma {
     update?: EventUpdateWithWhereUniqueWithoutTargetInput | EventUpdateWithWhereUniqueWithoutTargetInput[]
     updateMany?: EventUpdateManyWithWhereWithoutTargetInput | EventUpdateManyWithWhereWithoutTargetInput[]
     deleteMany?: EventScalarWhereInput | EventScalarWhereInput[]
+  }
+
+  export type CampaignUpdateOneRequiredWithoutTargetsNestedInput = {
+    create?: XOR<CampaignCreateWithoutTargetsInput, CampaignUncheckedCreateWithoutTargetsInput>
+    connectOrCreate?: CampaignCreateOrConnectWithoutTargetsInput
+    upsert?: CampaignUpsertWithoutTargetsInput
+    connect?: CampaignWhereUniqueInput
+    update?: XOR<XOR<CampaignUpdateToOneWithWhereWithoutTargetsInput, CampaignUpdateWithoutTargetsInput>, CampaignUncheckedUpdateWithoutTargetsInput>
   }
 
   export type EventUncheckedUpdateManyWithoutTargetNestedInput = {
@@ -7337,8 +7337,8 @@ export namespace Prisma {
     status?: $Enums.CampaignStatus
     scheduledAt?: Date | string | null
     createdAt?: Date | string
-    targets?: TargetCreateNestedManyWithoutCampaignInput
     events?: EventCreateNestedManyWithoutCampaignInput
+    targets?: TargetCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignUncheckedCreateWithoutCreatedByInput = {
@@ -7347,8 +7347,8 @@ export namespace Prisma {
     status?: $Enums.CampaignStatus
     scheduledAt?: Date | string | null
     createdAt?: Date | string
-    targets?: TargetUncheckedCreateNestedManyWithoutCampaignInput
     events?: EventUncheckedCreateNestedManyWithoutCampaignInput
+    targets?: TargetUncheckedCreateNestedManyWithoutCampaignInput
   }
 
   export type CampaignCreateOrConnectWithoutCreatedByInput = {
@@ -7390,25 +7390,48 @@ export namespace Prisma {
   }
 
   export type UserCreateWithoutCampaignsInput = {
-    name: string
     email: string
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+    name: string
   }
 
   export type UserUncheckedCreateWithoutCampaignsInput = {
     id?: number
-    name: string
     email: string
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+    name: string
   }
 
   export type UserCreateOrConnectWithoutCampaignsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutCampaignsInput, UserUncheckedCreateWithoutCampaignsInput>
+  }
+
+  export type EventCreateWithoutCampaignInput = {
+    type: $Enums.EventType
+    createdAt?: Date | string
+    target: TargetCreateNestedOneWithoutEventsInput
+  }
+
+  export type EventUncheckedCreateWithoutCampaignInput = {
+    id?: number
+    type: $Enums.EventType
+    createdAt?: Date | string
+    targetId: number
+  }
+
+  export type EventCreateOrConnectWithoutCampaignInput = {
+    where: EventWhereUniqueInput
+    create: XOR<EventCreateWithoutCampaignInput, EventUncheckedCreateWithoutCampaignInput>
+  }
+
+  export type EventCreateManyCampaignInputEnvelope = {
+    data: EventCreateManyCampaignInput | EventCreateManyCampaignInput[]
+    skipDuplicates?: boolean
   }
 
   export type TargetCreateWithoutCampaignInput = {
@@ -7436,29 +7459,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type EventCreateWithoutCampaignInput = {
-    type: $Enums.EventType
-    createdAt?: Date | string
-    target: TargetCreateNestedOneWithoutEventsInput
-  }
-
-  export type EventUncheckedCreateWithoutCampaignInput = {
-    id?: number
-    type: $Enums.EventType
-    createdAt?: Date | string
-    targetId: number
-  }
-
-  export type EventCreateOrConnectWithoutCampaignInput = {
-    where: EventWhereUniqueInput
-    create: XOR<EventCreateWithoutCampaignInput, EventUncheckedCreateWithoutCampaignInput>
-  }
-
-  export type EventCreateManyCampaignInputEnvelope = {
-    data: EventCreateManyCampaignInput | EventCreateManyCampaignInput[]
-    skipDuplicates?: boolean
-  }
-
   export type UserUpsertWithoutCampaignsInput = {
     update: XOR<UserUpdateWithoutCampaignsInput, UserUncheckedUpdateWithoutCampaignsInput>
     create: XOR<UserCreateWithoutCampaignsInput, UserUncheckedCreateWithoutCampaignsInput>
@@ -7471,47 +7471,20 @@ export namespace Prisma {
   }
 
   export type UserUpdateWithoutCampaignsInput = {
-    name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
   }
 
   export type UserUncheckedUpdateWithoutCampaignsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TargetUpsertWithWhereUniqueWithoutCampaignInput = {
-    where: TargetWhereUniqueInput
-    update: XOR<TargetUpdateWithoutCampaignInput, TargetUncheckedUpdateWithoutCampaignInput>
-    create: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput>
-  }
-
-  export type TargetUpdateWithWhereUniqueWithoutCampaignInput = {
-    where: TargetWhereUniqueInput
-    data: XOR<TargetUpdateWithoutCampaignInput, TargetUncheckedUpdateWithoutCampaignInput>
-  }
-
-  export type TargetUpdateManyWithWhereWithoutCampaignInput = {
-    where: TargetScalarWhereInput
-    data: XOR<TargetUpdateManyMutationInput, TargetUncheckedUpdateManyWithoutCampaignInput>
-  }
-
-  export type TargetScalarWhereInput = {
-    AND?: TargetScalarWhereInput | TargetScalarWhereInput[]
-    OR?: TargetScalarWhereInput[]
-    NOT?: TargetScalarWhereInput | TargetScalarWhereInput[]
-    id?: IntFilter<"Target"> | number
-    email?: StringFilter<"Target"> | string
-    department?: StringNullableFilter<"Target"> | string | null
-    token?: StringFilter<"Target"> | string
-    campaignId?: IntFilter<"Target"> | number
+    name?: StringFieldUpdateOperationsInput | string
   }
 
   export type EventUpsertWithWhereUniqueWithoutCampaignInput = {
@@ -7541,6 +7514,56 @@ export namespace Prisma {
     targetId?: IntFilter<"Event"> | number
   }
 
+  export type TargetUpsertWithWhereUniqueWithoutCampaignInput = {
+    where: TargetWhereUniqueInput
+    update: XOR<TargetUpdateWithoutCampaignInput, TargetUncheckedUpdateWithoutCampaignInput>
+    create: XOR<TargetCreateWithoutCampaignInput, TargetUncheckedCreateWithoutCampaignInput>
+  }
+
+  export type TargetUpdateWithWhereUniqueWithoutCampaignInput = {
+    where: TargetWhereUniqueInput
+    data: XOR<TargetUpdateWithoutCampaignInput, TargetUncheckedUpdateWithoutCampaignInput>
+  }
+
+  export type TargetUpdateManyWithWhereWithoutCampaignInput = {
+    where: TargetScalarWhereInput
+    data: XOR<TargetUpdateManyMutationInput, TargetUncheckedUpdateManyWithoutCampaignInput>
+  }
+
+  export type TargetScalarWhereInput = {
+    AND?: TargetScalarWhereInput | TargetScalarWhereInput[]
+    OR?: TargetScalarWhereInput[]
+    NOT?: TargetScalarWhereInput | TargetScalarWhereInput[]
+    id?: IntFilter<"Target"> | number
+    email?: StringFilter<"Target"> | string
+    department?: StringNullableFilter<"Target"> | string | null
+    token?: StringFilter<"Target"> | string
+    campaignId?: IntFilter<"Target"> | number
+  }
+
+  export type EventCreateWithoutTargetInput = {
+    type: $Enums.EventType
+    createdAt?: Date | string
+    campaign: CampaignCreateNestedOneWithoutEventsInput
+  }
+
+  export type EventUncheckedCreateWithoutTargetInput = {
+    id?: number
+    type: $Enums.EventType
+    createdAt?: Date | string
+    campaignId: number
+  }
+
+  export type EventCreateOrConnectWithoutTargetInput = {
+    where: EventWhereUniqueInput
+    create: XOR<EventCreateWithoutTargetInput, EventUncheckedCreateWithoutTargetInput>
+  }
+
+  export type EventCreateManyTargetInputEnvelope = {
+    data: EventCreateManyTargetInput | EventCreateManyTargetInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CampaignCreateWithoutTargetsInput = {
     name: string
     status?: $Enums.CampaignStatus
@@ -7565,27 +7588,20 @@ export namespace Prisma {
     create: XOR<CampaignCreateWithoutTargetsInput, CampaignUncheckedCreateWithoutTargetsInput>
   }
 
-  export type EventCreateWithoutTargetInput = {
-    type: $Enums.EventType
-    createdAt?: Date | string
-    campaign: CampaignCreateNestedOneWithoutEventsInput
-  }
-
-  export type EventUncheckedCreateWithoutTargetInput = {
-    id?: number
-    type: $Enums.EventType
-    createdAt?: Date | string
-    campaignId: number
-  }
-
-  export type EventCreateOrConnectWithoutTargetInput = {
+  export type EventUpsertWithWhereUniqueWithoutTargetInput = {
     where: EventWhereUniqueInput
+    update: XOR<EventUpdateWithoutTargetInput, EventUncheckedUpdateWithoutTargetInput>
     create: XOR<EventCreateWithoutTargetInput, EventUncheckedCreateWithoutTargetInput>
   }
 
-  export type EventCreateManyTargetInputEnvelope = {
-    data: EventCreateManyTargetInput | EventCreateManyTargetInput[]
-    skipDuplicates?: boolean
+  export type EventUpdateWithWhereUniqueWithoutTargetInput = {
+    where: EventWhereUniqueInput
+    data: XOR<EventUpdateWithoutTargetInput, EventUncheckedUpdateWithoutTargetInput>
+  }
+
+  export type EventUpdateManyWithWhereWithoutTargetInput = {
+    where: EventScalarWhereInput
+    data: XOR<EventUpdateManyMutationInput, EventUncheckedUpdateManyWithoutTargetInput>
   }
 
   export type CampaignUpsertWithoutTargetsInput = {
@@ -7616,22 +7632,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdById?: IntFieldUpdateOperationsInput | number
     events?: EventUncheckedUpdateManyWithoutCampaignNestedInput
-  }
-
-  export type EventUpsertWithWhereUniqueWithoutTargetInput = {
-    where: EventWhereUniqueInput
-    update: XOR<EventUpdateWithoutTargetInput, EventUncheckedUpdateWithoutTargetInput>
-    create: XOR<EventCreateWithoutTargetInput, EventUncheckedCreateWithoutTargetInput>
-  }
-
-  export type EventUpdateWithWhereUniqueWithoutTargetInput = {
-    where: EventWhereUniqueInput
-    data: XOR<EventUpdateWithoutTargetInput, EventUncheckedUpdateWithoutTargetInput>
-  }
-
-  export type EventUpdateManyWithWhereWithoutTargetInput = {
-    where: EventScalarWhereInput
-    data: XOR<EventUpdateManyMutationInput, EventUncheckedUpdateManyWithoutTargetInput>
   }
 
   export type CampaignCreateWithoutEventsInput = {
@@ -7747,8 +7747,8 @@ export namespace Prisma {
     status?: EnumCampaignStatusFieldUpdateOperationsInput | $Enums.CampaignStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    targets?: TargetUpdateManyWithoutCampaignNestedInput
     events?: EventUpdateManyWithoutCampaignNestedInput
+    targets?: TargetUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateWithoutCreatedByInput = {
@@ -7757,8 +7757,8 @@ export namespace Prisma {
     status?: EnumCampaignStatusFieldUpdateOperationsInput | $Enums.CampaignStatus
     scheduledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    targets?: TargetUncheckedUpdateManyWithoutCampaignNestedInput
     events?: EventUncheckedUpdateManyWithoutCampaignNestedInput
+    targets?: TargetUncheckedUpdateManyWithoutCampaignNestedInput
   }
 
   export type CampaignUncheckedUpdateManyWithoutCreatedByInput = {
@@ -7769,6 +7769,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EventCreateManyCampaignInput = {
+    id?: number
+    type: $Enums.EventType
+    createdAt?: Date | string
+    targetId: number
+  }
+
   export type TargetCreateManyCampaignInput = {
     id?: number
     email: string
@@ -7776,11 +7783,24 @@ export namespace Prisma {
     token: string
   }
 
-  export type EventCreateManyCampaignInput = {
-    id?: number
-    type: $Enums.EventType
-    createdAt?: Date | string
-    targetId: number
+  export type EventUpdateWithoutCampaignInput = {
+    type?: EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    target?: TargetUpdateOneRequiredWithoutEventsNestedInput
+  }
+
+  export type EventUncheckedUpdateWithoutCampaignInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    type?: EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type EventUncheckedUpdateManyWithoutCampaignInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    type?: EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetId?: IntFieldUpdateOperationsInput | number
   }
 
   export type TargetUpdateWithoutCampaignInput = {
@@ -7803,26 +7823,6 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     department?: NullableStringFieldUpdateOperationsInput | string | null
     token?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type EventUpdateWithoutCampaignInput = {
-    type?: EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    target?: TargetUpdateOneRequiredWithoutEventsNestedInput
-  }
-
-  export type EventUncheckedUpdateWithoutCampaignInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    type?: EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    targetId?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type EventUncheckedUpdateManyWithoutCampaignInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    type?: EnumEventTypeFieldUpdateOperationsInput | $Enums.EventType
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    targetId?: IntFieldUpdateOperationsInput | number
   }
 
   export type EventCreateManyTargetInput = {

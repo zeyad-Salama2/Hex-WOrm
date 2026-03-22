@@ -11,13 +11,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 // Zod schema defines field rules and cross-field validation.
-// - fullName: required
 // - email: valid email format
 // - password: minimum 6 chars
 // - confirmPassword: must match password
 const registerSchema = z
   .object({
-    fullName: z.string().min(1, "Full name is required."),
     email: z.string().email("Please enter a valid email address."),
     password: z.string().min(6, "Password must be at least 6 characters."),
     confirmPassword: z.string().min(1, "Please confirm your password."),
@@ -29,6 +27,12 @@ const registerSchema = z
 
 // Infer the TS type directly from schema so validation + types always stay in sync.
 type RegisterForm = z.infer<typeof registerSchema>;
+
+function buildApiUrl(path: string) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
+
+  return new URL(path, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -46,7 +50,6 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
     mode: "onChange", // Validate while typing so UI feedback and button state are live.
     defaultValues: {
-      fullName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -58,13 +61,16 @@ export default function RegisterPage() {
     setSubmitError("");
     try {
       // Submit registration data to backend.
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+      const registerUrl = buildApiUrl("register");
+      console.log("[register] NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+      console.log("[register] final request URL:", registerUrl);
+
+      const response = await fetch(registerUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: data.fullName,
           email: data.email,
           password: data.password,
         }),
@@ -124,25 +130,6 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit(onValidSubmit)} className="mt-8 space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="fullName" className="text-sm font-medium text-zinc-200">
-              Full Name
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              {...register("fullName")}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="Full Name"
-              autoComplete="name"
-            />
-            {errors.fullName && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-                {errors.fullName.message}
-              </p>
-            )}
-          </div>
-
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-zinc-200">
               Email

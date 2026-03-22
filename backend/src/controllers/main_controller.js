@@ -7,7 +7,7 @@ const { BadRequestError, CustomAPIError } = require("../errors");
 
 const dashboard = async(req, res) => {
     // Authorisation is handled in 
-    res.status(200).json({msg:`Welcome user ${req.user.name}`});
+    res.status(200).json({msg:`Welcome user ${req.user.email}`});
 }
 
 
@@ -28,9 +28,9 @@ const getAllUsers = async (req,res,next) => {
 }
 
 const loginUser = async(req,res,next) => {
-    const {name,email,password} = req.body;
-    if(!name || !email || !password) {
-        throw new BadRequestError('Please provide name, email and password.');
+    const {email,password} = req.body;
+    if(!email || !password) {
+        throw new BadRequestError('Please provide email and password.');
     }
     try{
         const foundUser = await userRepo.getByEmail(email);
@@ -46,7 +46,12 @@ const loginUser = async(req,res,next) => {
         }
 
         // Creates the JSON Web Token that we'll use for user authentication
-        const token = jwt.sign({foundUserId, name},process.env.JWT_SECRET,{expiresIn: process.env.JWT_SECRET_EXPIRES});
+        const tokenExpiry = process.env.JWT_SECRET_EXPIRES || "1d";
+        const token = jwt.sign(
+            {id: foundUserId, email: foundUser.email},
+            process.env.JWT_SECRET,
+            {expiresIn: tokenExpiry}
+        );
         res.status(200).json({token:token});
     } catch(error) {
         console.error("[loginUser] login failed:", error);
@@ -55,13 +60,13 @@ const loginUser = async(req,res,next) => {
 }
 
 const registerUser = async(req,res,next) => {
-    const {name,email,password} = req.body;
+    const {email,password} = req.body;
     console.log("[registerUser] request body:", req.body);
-    if(!name || !email || !password) {
-        throw new BadRequestError('Please provide name, email and password.');
+    if(!email || !password) {
+        throw new BadRequestError('Please provide email and password.');
     }
     try {
-        const createdUser = await userRepo.create(name,email,password);
+        const createdUser = await userRepo.create(email,password);
         res.status(200).json({"createdUser":createdUser});
     } catch(err) {
         console.error("[registerUser] registration failed:", err);

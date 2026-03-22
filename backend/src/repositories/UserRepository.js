@@ -23,12 +23,11 @@ class UserRepository {
         if(foundUser) return foundUser
         return null;
     }
-    async create(_name,_email,_password) {
+    async create(_email,_password) {
         try {
             // Let the database unique index enforce duplicate-email checks.
             const createdUser = await prisma.user.create({
                 data: {
-                    name: _name,
                     email:_email,
                     passwordHash: _password,
                 }

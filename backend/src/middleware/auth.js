@@ -16,8 +16,8 @@ const authenticationMiddleware = async (req,res,next) => {
     try {
         // Decodes the JWT, then passes on the retrieved id & user from it
         const decoded = jwt.verify(token,process.env.JWT_SECRET);
-        const {id, name} = decoded;
-        req.user = {id, name}
+        const {id, email} = decoded;
+        req.user = {id, email}
         next();
     } catch(error) {
         throw new UnauthenticatedError("Not authorised to access this route");
