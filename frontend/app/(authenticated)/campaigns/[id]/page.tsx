@@ -1,34 +1,316 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useMemo } from "react";
-import { useCampaigns } from "@/src/hooks/useCampaigns";
-import type { CampaignStatus } from "@/src/lib/api/campaigns";
+import { useParams, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import {
+  useCampaign,
+  useDeleteCampaign,
+  useUpdateCampaign,
+} from "@/src/hooks/useCampaigns";
+import type { Campaign, CampaignStatus, UpdateCampaignInput } from "@/src/lib/api/campaigns";
 
 function getStatusClasses(status: CampaignStatus) {
   switch (status) {
-    case "Draft":
+    case "DRAFT":
       return "border-white/10 bg-white/5 text-slate-300";
-    case "Scheduled":
+    case "SCHEDULED":
       return "border-blue-400/20 bg-blue-500/10 text-blue-300";
-    case "Running":
-      return "border-cyan-400/20 bg-cyan-500/10 text-cyan-300";
-    case "Completed":
+    case "SENT":
       return "border-emerald-400/20 bg-emerald-500/10 text-emerald-300";
     default:
       return "border-white/10 bg-white/5 text-slate-300";
   }
 }
 
+function formatStatusLabel(status: CampaignStatus) {
+  switch (status) {
+    case "DRAFT":
+      return "Draft";
+    case "SCHEDULED":
+      return "Scheduled";
+    case "SENT":
+      return "Sent";
+    default:
+      return status;
+  }
+}
+
+function formatDateTime(value: string | null | undefined) {
+  if (!value) {
+    return "Not scheduled";
+  }
+
+  return new Date(value).toLocaleString();
+}
+
+function toDatetimeLocal(value: string | null | undefined) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  const hours = `${date.getHours()}`.padStart(2, "0");
+  const minutes = `${date.getMinutes()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function toIsoString(value: string) {
+  return new Date(value).toISOString();
+}
+
+const statusOptions: CampaignStatus[] = ["DRAFT", "SCHEDULED", "SENT"];
+
+function CampaignEditor({
+  campaign,
+  onRefresh,
+}: {
+  campaign: Campaign;
+  onRefresh: () => Promise<void>;
+}) {
+  const router = useRouter();
+  const { update, isUpdating, error: updateError, successMessage: updateSuccessMessage } = useUpdateCampaign();
+  const { remove, isDeleting, error: deleteError, successMessage: deleteSuccessMessage } = useDeleteCampaign();
+  const [name, setName] = useState(campaign.name);
+  const [status, setStatus] = useState<CampaignStatus>(campaign.status);
+  const [scheduledAt, setScheduledAt] = useState(toDatetimeLocal(campaign.scheduledAt));
+  const [formError, setFormError] = useState("");
+
+  const handleUpdate = async () => {
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      setFormError("Campaign name is required.");
+      return;
+    }
+
+    if (!statusOptions.includes(status)) {
+      setFormError("Please choose a valid campaign status.");
+      return;
+    }
+
+    if (status === "SCHEDULED" && !scheduledAt) {
+      setFormError("A scheduled campaign needs a scheduled date and time.");
+      return;
+    }
+
+    if (scheduledAt) {
+      const scheduledDate = new Date(scheduledAt);
+      if (Number.isNaN(scheduledDate.getTime())) {
+        setFormError("Please enter a valid scheduled date and time.");
+        return;
+      }
+    }
+
+    const payload: UpdateCampaignInput = {};
+
+    if (trimmedName !== campaign.name) {
+      payload.name = trimmedName;
+    }
+
+    if (status !== campaign.status) {
+      payload.status = status;
+    }
+
+    const currentScheduledAt = toDatetimeLocal(campaign.scheduledAt);
+    if (scheduledAt !== currentScheduledAt) {
+      payload.scheduledAt = scheduledAt ? toIsoString(scheduledAt) : null;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setFormError("Provide at least one change before saving.");
+      return;
+    }
+
+    setFormError("");
+
+    try {
+      await update(campaign.id, payload);
+      await onRefresh();
+    } catch {
+      // Hook exposes update error state.
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm("Delete this campaign permanently?");
+    if (!confirmed) {
+      return;
+    }
+
+    setFormError("");
+
+    try {
+      await remove(campaign.id);
+      router.push("/campaigns?deleted=1");
+    } catch {
+      // Hook exposes deletion error state.
+    }
+  };
+
+  return (
+    <>
+      {(updateError || deleteError || formError) && (
+        <p className="rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+          {updateError || deleteError || formError}
+        </p>
+      )}
+
+      {(updateSuccessMessage || deleteSuccessMessage) && (
+        <p className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+          {updateSuccessMessage || deleteSuccessMessage}
+        </p>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
+        <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
+          <h3 className="text-lg font-semibold text-[color:var(--text)]">Campaign Settings</h3>
+          <div className="mt-6 space-y-5">
+            <div>
+              <label htmlFor="campaign-name" className="text-sm font-medium text-[color:var(--muted)]">
+                Campaign Name
+              </label>
+              <input
+                id="campaign-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                disabled={isUpdating || isDeleting}
+                className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Quarterly credential awareness simulation"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="campaign-status" className="text-sm font-medium text-[color:var(--muted)]">
+                Status
+              </label>
+              <select
+                id="campaign-status"
+                value={status}
+                onChange={(event) => setStatus(event.target.value as CampaignStatus)}
+                disabled={isUpdating || isDeleting}
+                className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {statusOptions.map((option) => (
+                  <option key={option} value={option} className="bg-slate-900">
+                    {formatStatusLabel(option)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="campaign-scheduled-at" className="text-sm font-medium text-[color:var(--muted)]">
+                Scheduled Date & Time
+              </label>
+              <input
+                id="campaign-scheduled-at"
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(event) => setScheduledAt(event.target.value)}
+                disabled={isUpdating || isDeleting}
+                className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <p className="mt-2 text-xs text-[color:var(--muted)]">
+                Clear this field if you want the backend to store a null schedule.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+            <button
+              type="button"
+              onClick={() => {
+                setName(campaign.name);
+                setStatus(campaign.status);
+                setScheduledAt(toDatetimeLocal(campaign.scheduledAt));
+                setFormError("");
+              }}
+              disabled={isUpdating || isDeleting}
+              className="rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-2.5 text-sm font-semibold text-[color:var(--text)] transition-colors duration-200 hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Reset
+            </button>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => void handleDelete()}
+                disabled={isUpdating || isDeleting}
+                className="rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-2.5 text-sm font-semibold text-rose-300 transition-colors duration-200 hover:border-rose-400/30 hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete Campaign"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void handleUpdate()}
+                disabled={isUpdating || isDeleting}
+                className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-300 transition-colors duration-200 hover:border-cyan-400/30 hover:bg-cyan-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
+            <h3 className="text-lg font-semibold text-[color:var(--text)]">Campaign Overview</h3>
+            <dl className="mt-6 space-y-4">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Created At</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{formatDateTime(campaign.createdAt)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Scheduled At</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{formatDateTime(campaign.scheduledAt)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Status</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{formatStatusLabel(campaign.status)}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
+            <h3 className="text-lg font-semibold text-[color:var(--text)]">Ownership & Activity</h3>
+            <dl className="mt-6 space-y-4">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Created By</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{campaign.createdBy?.email ?? "Unavailable"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Role</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{campaign.createdBy?.role ?? "Unavailable"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Targets</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{campaign._count?.targets ?? 0}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Events</dt>
+                <dd className="mt-2 text-sm text-[color:var(--text)]">{campaign._count?.events ?? 0}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function CampaignDetailPage() {
   const params = useParams<{ id: string }>();
-  const { data, isLoading, error } = useCampaigns();
-
-  const campaign = useMemo(
-    () => (data ?? []).find((item) => item.id === params.id),
-    [data, params.id]
-  );
+  const campaignId = useMemo(() => {
+    const parsed = Number(params.id);
+    return Number.isNaN(parsed) ? null : parsed;
+  }, [params.id]);
+  const { data: campaign, isLoading, error, refetch } = useCampaign(campaignId);
 
   return (
     <section className="space-y-8">
@@ -43,12 +325,12 @@ export default function CampaignDetailPage() {
                 "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
                 getStatusClasses(campaign.status),
               ].join(" ")}>
-                {campaign.status}
+                {formatStatusLabel(campaign.status)}
               </span>
             )}
           </div>
           <p className="mt-3 text-base text-[color:var(--muted)]">
-            Review high-level information for this phishing simulation.
+            Review the campaign details, update its fields, or remove it entirely.
           </p>
         </div>
 
@@ -60,11 +342,21 @@ export default function CampaignDetailPage() {
         </Link>
       </div>
 
-      {error && <p className="text-sm text-rose-300">{error}</p>}
+      {error && (
+        <p className="rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+          {error}
+        </p>
+      )}
 
-      <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6 text-[color:var(--muted)]">
-        Details coming soon
-      </div>
+      {isLoading && (
+        <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6 text-sm text-[color:var(--muted)]">
+          Loading campaign details...
+        </div>
+      )}
+
+      {!isLoading && campaign && (
+        <CampaignEditor key={campaign.id} campaign={campaign} onRefresh={refetch} />
+      )}
     </section>
   );
 }

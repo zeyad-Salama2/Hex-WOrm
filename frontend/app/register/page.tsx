@@ -108,11 +108,11 @@ export default function RegisterPage() {
       <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl transition duration-300 hover:-translate-y-0.5">
         <div className="flex items-start gap-4">
           <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/10">
-            <Image
-              src="/logo.png"
-              alt="HexWOrm logo"
-              width={52}
-              height={52}
+              <Image
+                src="/logo-20260324.png"
+                alt="HexWOrm logo"
+                width={52}
+                height={52}
               className="block"
               priority
             />

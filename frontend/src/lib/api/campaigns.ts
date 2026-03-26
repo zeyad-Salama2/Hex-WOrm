@@ -1,68 +1,155 @@
-export type CampaignStatus = "Draft" | "Scheduled" | "Running" | "Completed";
+export type CampaignStatus = "DRAFT" | "SCHEDULED" | "SENT";
+export type UserRole = "ADMIN" | "READ_ONLY";
+
+export interface CampaignCount {
+  targets: number;
+  events: number;
+}
+
+export interface CampaignUser {
+  id: number;
+  email: string;
+  role: UserRole;
+}
 
 export interface Campaign {
-  id: string;
+  id: number;
   name: string;
-  audience: string;
   status: CampaignStatus;
-  sentAt: string;
+  scheduledAt: string | null;
+  createdAt: string;
+  createdById: number;
+  createdBy?: CampaignUser;
+  targets?: unknown[];
+  events?: unknown[];
+  _count?: CampaignCount;
 }
 
 export interface CreateCampaignInput {
   name: string;
-  description: string;
-  audience: string;
-  template: string;
-  scheduleMode: "now" | "scheduled";
+  status?: CampaignStatus;
   scheduledAt?: string;
 }
 
-let campaignsStore: Campaign[] = [
-  {
-    id: "cmp-001",
-    name: "Credential Harvest Simulation",
-    audience: "All Staff",
-    status: "Completed",
-    sentAt: "2026-03-01T09:00:00Z",
-  },
-  {
-    id: "cmp-002",
-    name: "Invoice Attachment Test",
-    audience: "Finance",
-    status: "Running",
-    sentAt: "2026-03-02T14:30:00Z",
-  },
-  {
-    id: "cmp-003",
-    name: "VPN Reset Lure",
-    audience: "Remote Teams",
-    status: "Scheduled",
-    sentAt: "2026-03-04T08:15:00Z",
-  },
-];
+export interface UpdateCampaignInput {
+  name?: string;
+  status?: CampaignStatus;
+  scheduledAt?: string | null;
+}
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+interface ApiErrorPayload {
+  message?: string;
+}
+
+function getAuthToken() {
+  if (typeof document === "undefined") {
+    return "";
+  }
+
+  const tokenCookie = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith("token="));
+
+  return tokenCookie ? decodeURIComponent(tokenCookie.slice("token=".length)) : "";
+}
+
+function buildApiUrl(path: string) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
+  return new URL(path, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
+}
+
+async function readErrorMessage(response: Response, fallbackMessage: string) {
+  try {
+    const payload = (await response.json()) as ApiErrorPayload;
+    return payload.message || fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
+async function requestJson<T>(path: string, init?: RequestInit, fallbackMessage?: string): Promise<T> {
+  const token = getAuthToken();
+  const headers = new Headers(init?.headers);
+
+  headers.set("Content-Type", "application/json");
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(buildApiUrl(path), {
+    ...init,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorMessage(
+        response,
+        fallbackMessage || "Unable to complete the campaign request."
+      )
+    );
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return response.json() as Promise<T>;
 }
 
 export async function listCampaigns(): Promise<Campaign[]> {
-  await delay(300);
-  return [...campaignsStore];
+  const payload = await requestJson<{ campaigns: Campaign[] }>(
+    "campaigns",
+    { method: "GET" },
+    "Unable to load campaigns."
+  );
+
+  return payload.campaigns;
+}
+
+export async function getCampaignById(id: number): Promise<Campaign> {
+  const payload = await requestJson<{ campaign: Campaign }>(
+    `campaigns/${id}`,
+    { method: "GET" },
+    "Unable to load the selected campaign."
+  );
+
+  return payload.campaign;
 }
 
 export async function createCampaign(input: CreateCampaignInput): Promise<Campaign> {
-  await delay(300);
+  const payload = await requestJson<{ campaign: Campaign }>(
+    "campaigns",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+    "Unable to create campaign."
+  );
 
-  const campaign: Campaign = {
-    id: `cmp-${Date.now()}`,
-    name: input.name,
-    audience: input.audience,
-    status: input.scheduleMode === "scheduled" ? "Scheduled" : "Draft",
-    sentAt: input.scheduleMode === "scheduled"
-      ? input.scheduledAt ?? new Date().toISOString()
-      : new Date().toISOString(),
-  };
+  return payload.campaign;
+}
 
-  campaignsStore = [campaign, ...campaignsStore];
-  return campaign;
+export async function updateCampaign(id: number, input: UpdateCampaignInput): Promise<Campaign> {
+  const payload = await requestJson<{ campaign: Campaign }>(
+    `campaigns/${id}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    },
+    "Unable to update campaign."
+  );
+
+  return payload.campaign;
+}
+
+export async function deleteCampaign(id: number): Promise<string> {
+  const payload = await requestJson<{ msg: string }>(
+    `campaigns/${id}`,
+    { method: "DELETE" },
+    "Unable to delete campaign."
+  );
+
+  return payload.msg;
 }
