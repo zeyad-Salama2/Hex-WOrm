@@ -1,24 +1,11 @@
-# dependencies
 node_modules/
-
-# env files (IMPORTANT)
 .env
 .env.*
-
-# build files
+.vscode/
+.DS_Store
+Thumbs.db
+npm-debug.log*
+backend/generated/
 .next/
 dist/
 build/
-
-# logs
-npm-debug.log*
-
-# system files
-.DS_Store
-Thumbs.db
-
-# editor
-.vscode/
-
-# prisma generated client (optional)
-backend/generated/
