@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")  //yes this returns an error yes it still works...
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(READ_ONLY)
+  createdAt    DateTime   @default(now())
+  campaigns    Campaign[]
+}
+
+model Campaign {
+  id          Int            @id @default(autoincrement())
+  name        String
+  status      CampaignStatus @default(DRAFT)
+  scheduledAt DateTime?
+  createdAt   DateTime       @default(now())
+  createdById Int
+  createdBy   User           @relation(fields: [createdById], references: [id])
+  events      Event[]
+  targets     Target[]
+}
+
+model Target {
+  id         Int      @id @default(autoincrement())
+  email      String
+  department String?
+  token      String   @unique
+  campaignId Int
+  events     Event[]
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+}
+
+model Event {
+  id         Int       @id @default(autoincrement())
+  type       EventType
+  createdAt  DateTime  @default(now())
+  campaignId Int
+  targetId   Int
+  campaign   Campaign  @relation(fields: [campaignId], references: [id])
+  target     Target    @relation(fields: [targetId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  READ_ONLY
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+}
+
+enum EventType {
+  OPEN
+  CLICK
+  SUBMIT
+}
