@@ -25,12 +25,6 @@ export default function NewCampaignPage() {
   const [name, setName] = useState("");
   const [status, setStatus] = useState<CampaignStatus>("DRAFT");
   const [scheduledAt, setScheduledAt] = useState("");
-<<<<<<< HEAD
-  const [formError, setFormError] = useState("");
-
-  const handleSubmit = async () => {
-    const trimmedName = name.trim();
-=======
   const [targets, setTargets] = useState("");
   const [formError, setFormError] = useState("");
 
@@ -40,7 +34,6 @@ export default function NewCampaignPage() {
     .split(",")
     .map((email) => email.trim())
     .filter(Boolean);
->>>>>>> origin/email-feature
 
     if (!trimmedName) {
       setFormError("Campaign name is required.");
@@ -65,17 +58,6 @@ export default function NewCampaignPage() {
       return;
     }
 
-<<<<<<< HEAD
-    setFormError("");
-
-    try {
-      await create({
-        name: trimmedName,
-        status,
-        scheduledAt: scheduledAt ? toIsoString(scheduledAt) : undefined,
-      });
-      router.push("/campaigns?created=1");
-=======
     if (status === "SENT" && parsedTargets.length === 0) {
       setFormError("A sent campaign needs at least one target email.");
       return;
@@ -91,7 +73,6 @@ export default function NewCampaignPage() {
         targets: parsedTargets,
     });
     router.push(`/campaigns/${campaign.id}?created=1`);
->>>>>>> origin/email-feature
     } catch {
       // Hook exposes API error state for display.
     }
@@ -129,9 +110,6 @@ export default function NewCampaignPage() {
                 placeholder="Quarterly credential awareness simulation"
               />
             </div>
-<<<<<<< HEAD
-
-=======
           <div>
             <label htmlFor="campaign-targets" className="text-sm font-medium text-[color:var(--muted)]">
               Target Emails
@@ -148,7 +126,6 @@ export default function NewCampaignPage() {
               Enter one or more target email addresses, separated by commas.
             </p>
           </div>
->>>>>>> origin/email-feature
             <div>
               <label htmlFor="campaign-status" className="text-sm font-medium text-[color:var(--muted)]">
                 Status

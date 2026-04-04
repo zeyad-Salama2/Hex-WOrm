@@ -29,20 +29,14 @@ const getAllUsers = async (req,res,next) => {
 
 const loginUser = async(req,res,next) => {
     const {email,password} = req.body;
-<<<<<<< HEAD
-=======
     console.log("[loginUser] request body:", req.body);
->>>>>>> origin/email-feature
     if(!email || !password) {
         throw new BadRequestError('Please provide email and password.');
     }
     try{
         const foundUser = await userRepo.getByEmail(email);
-<<<<<<< HEAD
-=======
         console.log("[loginUser] found user:", foundUser);
         console.log("[loginUser] stored passwordHash:", foundUser?.passwordHash);
->>>>>>> origin/email-feature
         if (!foundUser) {
             throw new CustomAPIError("Invalid email or password.", StatusCodes.UNAUTHORIZED);
         }
@@ -68,22 +62,6 @@ const loginUser = async(req,res,next) => {
     }
 }
 
-<<<<<<< HEAD
-const registerUser = async(req,res,next) => {
-    const {email,password} = req.body;
-    console.log("[registerUser] request body:", req.body);
-    if(!email || !password) {
-        throw new BadRequestError('Please provide email and password.');
-    }
-    try {
-        const createdUser = await userRepo.create(email,password);
-        res.status(200).json({"createdUser":createdUser});
-    } catch(err) {
-        console.error("[registerUser] registration failed:", err);
-        next(err);
-    }
-}
-=======
 const registerUser = async (req, res, next) => {
     const { email, password } = req.body;
     console.log("[registerUser] request body:", req.body);
@@ -102,7 +80,6 @@ const registerUser = async (req, res, next) => {
         next(err);
     }
 };
->>>>>>> origin/email-feature
 
 module.exports = {
     dashboard,getAllUsers,loginUser,registerUser

@@ -98,12 +98,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   role: 'role',
-<<<<<<< HEAD
-  createdAt: 'createdAt',
-  name: 'name'
-=======
   createdAt: 'createdAt'
->>>>>>> origin/email-feature
 };
 
 exports.Prisma.CampaignScalarFieldEnum = {
@@ -179,11 +174,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-<<<<<<< HEAD
-      "value": "C:\\Users\\LENOVO\\phishing-sim-dashboard\\backend\\generated\\prisma",
-=======
       "value": "C:\\Users\\brook\\Downloads\\Hex-WOrm-main\\Hex-WOrm-main\\backend\\generated\\prisma",
->>>>>>> origin/email-feature
       "fromEnvVar": null
     },
     "config": {
@@ -197,19 +188,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-<<<<<<< HEAD
-    "sourceFilePath": "C:\\Users\\LENOVO\\phishing-sim-dashboard\\backend\\prisma\\schema.prisma",
-    "isCustomOutput": true
-  },
-  "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
-=======
     "sourceFilePath": "C:\\Users\\brook\\Downloads\\Hex-WOrm-main\\Hex-WOrm-main\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
     "rootEnvPath": null,
->>>>>>> origin/email-feature
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
@@ -228,22 +211,13 @@ const config = {
       }
     }
   },
-<<<<<<< HEAD
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id           Int        @id @default(autoincrement())\n  email        String     @unique\n  passwordHash String\n  role         Role       @default(READ_ONLY)\n  createdAt    DateTime   @default(now())\n  name         String\n  campaigns    Campaign[]\n}\n\nmodel Campaign {\n  id          Int            @id @default(autoincrement())\n  name        String\n  status      CampaignStatus @default(DRAFT)\n  scheduledAt DateTime?\n  createdAt   DateTime       @default(now())\n  createdById Int\n  createdBy   User           @relation(fields: [createdById], references: [id])\n  events      Event[]\n  targets     Target[]\n}\n\nmodel Target {\n  id         Int      @id @default(autoincrement())\n  email      String\n  department String?\n  token      String   @unique\n  campaignId Int\n  events     Event[]\n  campaign   Campaign @relation(fields: [campaignId], references: [id])\n}\n\nmodel Event {\n  id         Int       @id @default(autoincrement())\n  type       EventType\n  createdAt  DateTime  @default(now())\n  campaignId Int\n  targetId   Int\n  campaign   Campaign  @relation(fields: [campaignId], references: [id])\n  target     Target    @relation(fields: [targetId], references: [id])\n}\n\nenum Role {\n  ADMIN\n  READ_ONLY\n}\n\nenum CampaignStatus {\n  DRAFT\n  SCHEDULED\n  SENT\n}\n\nenum EventType {\n  OPEN\n  CLICK\n  SUBMIT\n}\n",
-  "inlineSchemaHash": "0fb978e675de69baf5f7c7a0e787515c6560441460ba12f960575e03f3557257",
-=======
   "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\") //yes this returns an error yes it still works...\n}\n\nmodel User {\n  id           Int        @id @default(autoincrement())\n  email        String     @unique\n  passwordHash String\n  role         Role       @default(READ_ONLY)\n  createdAt    DateTime   @default(now())\n  campaigns    Campaign[]\n}\n\nmodel Campaign {\n  id          Int            @id @default(autoincrement())\n  name        String\n  status      CampaignStatus @default(DRAFT)\n  scheduledAt DateTime?\n  createdAt   DateTime       @default(now())\n  createdById Int\n  createdBy   User           @relation(fields: [createdById], references: [id])\n  events      Event[]\n  targets     Target[]\n}\n\nmodel Target {\n  id         Int      @id @default(autoincrement())\n  email      String\n  department String?\n  token      String   @unique\n  campaignId Int\n  events     Event[]\n  campaign   Campaign @relation(fields: [campaignId], references: [id])\n}\n\nmodel Event {\n  id         Int       @id @default(autoincrement())\n  type       EventType\n  createdAt  DateTime  @default(now())\n  campaignId Int\n  targetId   Int\n  campaign   Campaign  @relation(fields: [campaignId], references: [id])\n  target     Target    @relation(fields: [targetId], references: [id])\n}\n\nenum Role {\n  ADMIN\n  READ_ONLY\n}\n\nenum CampaignStatus {\n  DRAFT\n  SCHEDULED\n  SENT\n}\n\nenum EventType {\n  OPEN\n  CLICK\n  SUBMIT\n}\n",
   "inlineSchemaHash": "59947322f7700a9530b9ea8f1688ee321bcbbb4ff0d972891c4099932ece895a",
->>>>>>> origin/email-feature
   "copyEngine": true
 }
 config.dirname = '/'
 
-<<<<<<< HEAD
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"campaigns\",\"kind\":\"object\",\"type\":\"Campaign\",\"relationName\":\"CampaignToUser\"}],\"dbName\":null},\"Campaign\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"CampaignStatus\"},{\"name\":\"scheduledAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CampaignToUser\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"CampaignToEvent\"},{\"name\":\"targets\",\"kind\":\"object\",\"type\":\"Target\",\"relationName\":\"CampaignToTarget\"}],\"dbName\":null},\"Target\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"department\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"campaignId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToTarget\"},{\"name\":\"campaign\",\"kind\":\"object\",\"type\":\"Campaign\",\"relationName\":\"CampaignToTarget\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"EventType\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"campaignId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"targetId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"campaign\",\"kind\":\"object\",\"type\":\"Campaign\",\"relationName\":\"CampaignToEvent\"},{\"name\":\"target\",\"kind\":\"object\",\"type\":\"Target\",\"relationName\":\"EventToTarget\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
-=======
 config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"campaigns\",\"kind\":\"object\",\"type\":\"Campaign\",\"relationName\":\"CampaignToUser\"}],\"dbName\":null},\"Campaign\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"CampaignStatus\"},{\"name\":\"scheduledAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CampaignToUser\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"CampaignToEvent\"},{\"name\":\"targets\",\"kind\":\"object\",\"type\":\"Target\",\"relationName\":\"CampaignToTarget\"}],\"dbName\":null},\"Target\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"department\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"campaignId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToTarget\"},{\"name\":\"campaign\",\"kind\":\"object\",\"type\":\"Campaign\",\"relationName\":\"CampaignToTarget\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"EventType\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"campaignId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"targetId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"campaign\",\"kind\":\"object\",\"type\":\"Campaign\",\"relationName\":\"CampaignToEvent\"},{\"name\":\"target\",\"kind\":\"object\",\"type\":\"Target\",\"relationName\":\"EventToTarget\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
->>>>>>> origin/email-feature
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

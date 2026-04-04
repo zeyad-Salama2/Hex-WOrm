@@ -1,37 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, CustomAPIError } = require("../errors");
-<<<<<<< HEAD
-const { CampaignRepository } = require("../repositories/CampaignRepository");
-
-const campaignRepo = new CampaignRepository();
-
-// create campaign
-const createCampaign = async (req, res, next) => {
-const { name, status, scheduledAt } = req.body;
-
-// keeping this simple for now
-if (!name) {
-    return next(new BadRequestError("Campaign name is required."));
-}
-
-try {
-    const payload = {
-        name: name,
-        status: status || "DRAFT",
-        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
-        createdById: req.user.id,
-    };
-
-    const campaign = await campaignRepo.create(payload);
-
-    return res.status(StatusCodes.CREATED).json({
-        campaign,
-    });
-} catch (err) {
-    // might want better logging here later
-    return next(err);
-}
-=======
 
 // create campaign
 const { CampaignRepository } = require("../repositories/CampaignRepository");
@@ -77,7 +45,6 @@ const createCampaign = async (req, res, next) => {
         console.error("[createCampaign] failed:", err);
         next(err);
     }
->>>>>>> origin/email-feature
 };
 
 // list all campaigns
@@ -190,17 +157,6 @@ try {
 
 };
 
-<<<<<<< HEAD
-// exporting individually feels clearer to me here
-module.exports = {
-createCampaign,
-getAllCampaigns,
-getCampaignById,
-updateCampaign,
-deleteCampaign,
-};
-
-=======
 // handler for sending a quick test email — its purpose is for debugging stuff
 const sendTestEmail = async (req, res, next) => {
 try {
@@ -253,7 +209,6 @@ module.exports = {
     deleteCampaign,
     sendTestEmail,
 };
->>>>>>> origin/email-feature
 // old idea:
 // module.exports.createCampaign = createCampaign;
 // left this here mentally, but object export is cleaner enough.

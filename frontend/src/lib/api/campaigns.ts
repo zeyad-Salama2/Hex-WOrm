@@ -29,10 +29,7 @@ export interface CreateCampaignInput {
   name: string;
   status?: CampaignStatus;
   scheduledAt?: string;
-<<<<<<< HEAD
-=======
   targets?: string[];
->>>>>>> origin/email-feature
 }
 
 export interface UpdateCampaignInput {

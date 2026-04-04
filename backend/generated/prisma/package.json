@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "name": "prisma-client-d1bc440b8e2275a2452c12bcbc9f7620014eee090b9de8c0dba82290df64ab7a",
-=======
   "name": "prisma-client-3fa7867699cf96479645ce5f5ca43bc01293829454d996e1ceca2bc9b342b8ef",
->>>>>>> origin/email-feature
   "main": "index.js",
   "types": "index.d.ts",
   "browser": "default.js",

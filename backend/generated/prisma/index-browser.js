@@ -126,12 +126,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   role: 'role',
-<<<<<<< HEAD
-  createdAt: 'createdAt',
-  name: 'name'
-=======
   createdAt: 'createdAt'
->>>>>>> origin/email-feature
 };
 
 exports.Prisma.CampaignScalarFieldEnum = {

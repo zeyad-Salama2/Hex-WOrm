@@ -11,11 +11,7 @@ const authenticationMiddleware = async (req,res,next) => {
     }
 
     // Retrieves the token from the header
-<<<<<<< HEAD
-    const token = authHeader.split(' ')[1];
-=======
     const token = authHeader.split(" ")[1];
->>>>>>> origin/email-feature
     
     try {
         // Decodes the JWT, then passes on the retrieved id & user from it
