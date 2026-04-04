@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const prisma = require("../../prisma/prisma.js");
 
 class CampaignRepository {
@@ -20,6 +21,41 @@ async create(data) {
 
     return result; // storing result first just in case we want logs later
 }
+=======
+const prisma = require("../../prisma/prisma");
+
+class CampaignRepository {
+    async create(data) {
+        const result = await prisma.campaign.create({
+            data: {
+                name: data.name,
+                status: data.status,
+                scheduledAt: data.scheduledAt || null,
+                createdBy: {
+                    connect: { id: data.createdById },
+                },
+            },
+            include: {
+                createdBy: {
+                    select: {
+                        id: true,
+                        email: true,
+                        role: true,
+                    },
+                },
+                _count: {
+                    select: {
+                        targets: true,
+                        events: true,
+                    },
+                },
+            },
+        });
+
+        return result;
+    }
+
+>>>>>>> origin/email-feature
 
 // get all campaigns
 async getAll() {

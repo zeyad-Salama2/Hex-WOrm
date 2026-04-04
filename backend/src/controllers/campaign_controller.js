@@ -1,5 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, CustomAPIError } = require("../errors");
+<<<<<<< HEAD
 const { CampaignRepository } = require("../repositories/CampaignRepository");
 
 const campaignRepo = new CampaignRepository();
@@ -30,6 +31,53 @@ try {
     // might want better logging here later
     return next(err);
 }
+=======
+
+// create campaign
+const { CampaignRepository } = require("../repositories/CampaignRepository");
+const { sendEmail } = require("../services/email_service");
+
+const campaignRepo = new CampaignRepository();
+
+const createCampaign = async (req, res, next) => {
+    try {
+        const { name, status, scheduledAt, targets } = req.body;
+
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({ message: "User authentication is required." });
+        }
+
+        const parsedTargets = Array.isArray(targets)
+            ? targets.map((email) => String(email).trim()).filter(Boolean)
+            : [];
+
+        const campaign = await campaignRepo.create({
+            name,
+            status,
+            scheduledAt,
+            createdById: userId,
+        });
+
+        if (status === "SENT" && parsedTargets.length > 0) {
+            for (const email of parsedTargets) {
+                const result = await sendEmail({
+                    to: email,
+                    subject: `Phishing Simulation: ${name}`,
+                    text: "This is a phishing simulation email.",
+                    html: `<h2>${name}</h2><p>This is a phishing simulation email.</p>`,
+                });
+
+                console.log(`Sent to ${email}:`, result.previewUrl);
+            }
+        }
+
+        res.status(201).json({ campaign });
+    } catch (err) {
+        console.error("[createCampaign] failed:", err);
+        next(err);
+    }
+>>>>>>> origin/email-feature
 };
 
 // list all campaigns
@@ -142,6 +190,7 @@ try {
 
 };
 
+<<<<<<< HEAD
 // exporting individually feels clearer to me here
 module.exports = {
 createCampaign,
@@ -151,6 +200,60 @@ updateCampaign,
 deleteCampaign,
 };
 
+=======
+// handler for sending a quick test email — its purpose is for debugging stuff
+const sendTestEmail = async (req, res, next) => {
+try {
+    // grabbing 'to' from request body
+    const { to } = req.body || {}; // added fallback just in case body is undefined
+
+        // basic validation (probably should be more strict but this works for now)
+        if (!to) {
+            return res.status(400).json({
+                message: "Recipient email is required."
+            });
+        }
+
+        // could add more fields here later (cc, bcc, etc.), leaving it simple for now since its only for debugging
+        const emailPayload = {
+            to: to,
+            subject: "Phishing Simulation Test",
+            text: "This is a test phishing simulation email.",
+            html: "<h2>This is a test phishing simulation email</h2>"
+        };
+
+        // actually sending email
+        const result = await sendEmail(emailPayload);
+
+        // slight redundancy here but makes response clearer imo
+        const responseData = {
+            message: "Email generated successfully",
+            messageId: result.messageId,
+            previewUrl: result.previewUrl
+        };
+
+        return res.status(200).json(responseData);
+
+    } catch (err) {
+        // logging with a tag so I can find it easier in logs later
+        console.error("[sendTestEmail] failed:", err);
+
+        // might want custom error handling middleware later
+        next(err);
+    }
+
+    };
+
+// exporting individually feels clearer to me here
+module.exports = {
+    createCampaign,
+    getAllCampaigns,
+    getCampaignById,
+    updateCampaign,
+    deleteCampaign,
+    sendTestEmail,
+};
+>>>>>>> origin/email-feature
 // old idea:
 // module.exports.createCampaign = createCampaign;
 // left this here mentally, but object export is cleaner enough.

@@ -25,10 +25,22 @@ export default function NewCampaignPage() {
   const [name, setName] = useState("");
   const [status, setStatus] = useState<CampaignStatus>("DRAFT");
   const [scheduledAt, setScheduledAt] = useState("");
+<<<<<<< HEAD
   const [formError, setFormError] = useState("");
 
   const handleSubmit = async () => {
     const trimmedName = name.trim();
+=======
+  const [targets, setTargets] = useState("");
+  const [formError, setFormError] = useState("");
+
+  const handleSubmit = async () => {
+  const trimmedName = name.trim();
+  const parsedTargets = targets
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+>>>>>>> origin/email-feature
 
     if (!trimmedName) {
       setFormError("Campaign name is required.");
@@ -53,6 +65,7 @@ export default function NewCampaignPage() {
       return;
     }
 
+<<<<<<< HEAD
     setFormError("");
 
     try {
@@ -62,6 +75,23 @@ export default function NewCampaignPage() {
         scheduledAt: scheduledAt ? toIsoString(scheduledAt) : undefined,
       });
       router.push("/campaigns?created=1");
+=======
+    if (status === "SENT" && parsedTargets.length === 0) {
+      setFormError("A sent campaign needs at least one target email.");
+      return;
+    }
+
+    setFormError("");
+
+    try {
+      const campaign = await create({
+        name: trimmedName,
+        status,
+        scheduledAt: scheduledAt ? toIsoString(scheduledAt) : undefined,
+        targets: parsedTargets,
+    });
+    router.push(`/campaigns/${campaign.id}?created=1`);
+>>>>>>> origin/email-feature
     } catch {
       // Hook exposes API error state for display.
     }
@@ -99,7 +129,26 @@ export default function NewCampaignPage() {
                 placeholder="Quarterly credential awareness simulation"
               />
             </div>
+<<<<<<< HEAD
 
+=======
+          <div>
+            <label htmlFor="campaign-targets" className="text-sm font-medium text-[color:var(--muted)]">
+              Target Emails
+            </label>
+            <textarea
+              id="campaign-targets"
+              value={targets}
+              onChange={(event) => setTargets(event.target.value)}
+              rows={4}
+              className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
+              placeholder="employee1@company.com, employee2@company.com"
+            />
+            <p className="mt-2 text-xs text-[color:var(--muted)]">
+              Enter one or more target email addresses, separated by commas.
+            </p>
+          </div>
+>>>>>>> origin/email-feature
             <div>
               <label htmlFor="campaign-status" className="text-sm font-medium text-[color:var(--muted)]">
                 Status

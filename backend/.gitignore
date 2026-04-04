@@ -1,9 +1,20 @@
 node_modules/
 .env
+<<<<<<< HEAD
 backend/.env
 frontend/.env
+=======
+.env.*
+>>>>>>> origin/email-feature
 .vscode/
 .DS_Store
 Thumbs.db
 npm-debug.log*
+<<<<<<< HEAD
 backend\generated
+=======
+backend/generated/
+.next/
+dist/
+build/
+>>>>>>> origin/email-feature

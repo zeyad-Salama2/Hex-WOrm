@@ -1304,7 +1304,10 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.Role | null
     createdAt: Date | null
+<<<<<<< HEAD
     name: string | null
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1313,7 +1316,10 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.Role | null
     createdAt: Date | null
+<<<<<<< HEAD
     name: string | null
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserCountAggregateOutputType = {
@@ -1322,7 +1328,10 @@ export namespace Prisma {
     passwordHash: number
     role: number
     createdAt: number
+<<<<<<< HEAD
     name: number
+=======
+>>>>>>> origin/email-feature
     _all: number
   }
 
@@ -1341,7 +1350,10 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     createdAt?: true
+<<<<<<< HEAD
     name?: true
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserMaxAggregateInputType = {
@@ -1350,7 +1362,10 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     createdAt?: true
+<<<<<<< HEAD
     name?: true
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserCountAggregateInputType = {
@@ -1359,7 +1374,10 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     createdAt?: true
+<<<<<<< HEAD
     name?: true
+=======
+>>>>>>> origin/email-feature
     _all?: true
   }
 
@@ -1455,7 +1473,10 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     createdAt: Date
+<<<<<<< HEAD
     name: string
+=======
+>>>>>>> origin/email-feature
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -1483,7 +1504,10 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+<<<<<<< HEAD
     name?: boolean
+=======
+>>>>>>> origin/email-feature
     campaigns?: boolean | User$campaignsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -1494,7 +1518,10 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+<<<<<<< HEAD
     name?: boolean
+=======
+>>>>>>> origin/email-feature
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1503,7 +1530,10 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+<<<<<<< HEAD
     name?: boolean
+=======
+>>>>>>> origin/email-feature
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1512,10 +1542,16 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     createdAt?: boolean
+<<<<<<< HEAD
     name?: boolean
   }
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "createdAt" | "name", ExtArgs["result"]["user"]>
+=======
+  }
+
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "createdAt", ExtArgs["result"]["user"]>
+>>>>>>> origin/email-feature
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     campaigns?: boolean | User$campaignsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1534,7 +1570,10 @@ export namespace Prisma {
       passwordHash: string
       role: $Enums.Role
       createdAt: Date
+<<<<<<< HEAD
       name: string
+=======
+>>>>>>> origin/email-feature
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -1964,7 +2003,10 @@ export namespace Prisma {
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
+<<<<<<< HEAD
     readonly name: FieldRef<"User", 'String'>
+=======
+>>>>>>> origin/email-feature
   }
     
 
@@ -5815,8 +5857,12 @@ export namespace Prisma {
     email: 'email',
     passwordHash: 'passwordHash',
     role: 'role',
+<<<<<<< HEAD
     createdAt: 'createdAt',
     name: 'name'
+=======
+    createdAt: 'createdAt'
+>>>>>>> origin/email-feature
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -5995,7 +6041,10 @@ export namespace Prisma {
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     createdAt?: DateTimeFilter<"User"> | Date | string
+<<<<<<< HEAD
     name?: StringFilter<"User"> | string
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignListRelationFilter
   }
 
@@ -6005,7 +6054,10 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+<<<<<<< HEAD
     name?: SortOrder
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignOrderByRelationAggregateInput
   }
 
@@ -6018,7 +6070,10 @@ export namespace Prisma {
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     createdAt?: DateTimeFilter<"User"> | Date | string
+<<<<<<< HEAD
     name?: StringFilter<"User"> | string
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignListRelationFilter
   }, "id" | "email">
 
@@ -6028,7 +6083,10 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+<<<<<<< HEAD
     name?: SortOrder
+=======
+>>>>>>> origin/email-feature
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -6045,7 +6103,10 @@ export namespace Prisma {
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+<<<<<<< HEAD
     name?: StringWithAggregatesFilter<"User"> | string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type CampaignWhereInput = {
@@ -6241,7 +6302,10 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+<<<<<<< HEAD
     name: string
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignCreateNestedManyWithoutCreatedByInput
   }
 
@@ -6251,7 +6315,10 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+<<<<<<< HEAD
     name: string
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -6260,7 +6327,10 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+<<<<<<< HEAD
     name?: StringFieldUpdateOperationsInput | string
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -6270,7 +6340,10 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+<<<<<<< HEAD
     name?: StringFieldUpdateOperationsInput | string
+=======
+>>>>>>> origin/email-feature
     campaigns?: CampaignUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -6280,7 +6353,10 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+<<<<<<< HEAD
     name: string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserUpdateManyMutationInput = {
@@ -6288,7 +6364,10 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+<<<<<<< HEAD
     name?: StringFieldUpdateOperationsInput | string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -6297,7 +6376,10 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+<<<<<<< HEAD
     name?: StringFieldUpdateOperationsInput | string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type CampaignCreateInput = {
@@ -6534,7 +6616,10 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+<<<<<<< HEAD
     name?: SortOrder
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -6547,7 +6632,10 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+<<<<<<< HEAD
     name?: SortOrder
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -6556,7 +6644,10 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
+<<<<<<< HEAD
     name?: SortOrder
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -7394,7 +7485,10 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+<<<<<<< HEAD
     name: string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserUncheckedCreateWithoutCampaignsInput = {
@@ -7403,7 +7497,10 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.Role
     createdAt?: Date | string
+<<<<<<< HEAD
     name: string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserCreateOrConnectWithoutCampaignsInput = {
@@ -7475,7 +7572,10 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+<<<<<<< HEAD
     name?: StringFieldUpdateOperationsInput | string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type UserUncheckedUpdateWithoutCampaignsInput = {
@@ -7484,7 +7584,10 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+<<<<<<< HEAD
     name?: StringFieldUpdateOperationsInput | string
+=======
+>>>>>>> origin/email-feature
   }
 
   export type EventUpsertWithWhereUniqueWithoutCampaignInput = {
