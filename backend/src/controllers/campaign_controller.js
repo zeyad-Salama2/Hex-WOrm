@@ -6,15 +6,65 @@ const { CampaignRepository } = require("../repositories/CampaignRepository");
 const { sendEmail } = require("../services/email_service");
 
 const campaignRepo = new CampaignRepository();
+const MAX_SCHEDULE_YEARS_AHEAD = 50;
+
+const requireAuthenticatedUserId = (req) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        throw new CustomAPIError("User authentication is required.", StatusCodes.UNAUTHORIZED);
+    }
+
+    return userId;
+};
+
+const getScheduleUpperBound = (now = new Date()) => {
+    const upperBound = new Date(now);
+    upperBound.setFullYear(upperBound.getFullYear() + MAX_SCHEDULE_YEARS_AHEAD);
+    return upperBound;
+};
+
+const parseScheduledAt = (scheduledAt, { allowNull = true, required = false } = {}) => {
+    if (scheduledAt === undefined) {
+        if (required) {
+            throw new BadRequestError("A scheduled campaign needs a scheduled date and time.");
+        }
+
+        return undefined;
+    }
+
+    if (scheduledAt === null || scheduledAt === "") {
+        if (required) {
+            throw new BadRequestError("A scheduled campaign needs a scheduled date and time.");
+        }
+
+        return allowNull ? null : undefined;
+    }
+
+    const parsedDate = new Date(scheduledAt);
+    if (Number.isNaN(parsedDate.getTime())) {
+        throw new BadRequestError("Please enter a valid scheduled date and time.");
+    }
+
+    const now = new Date();
+    if (parsedDate < now) {
+        throw new BadRequestError("Scheduled date and time cannot be in the past.");
+    }
+
+    if (parsedDate > getScheduleUpperBound(now)) {
+        throw new BadRequestError(`Scheduled date and time must be within ${MAX_SCHEDULE_YEARS_AHEAD} years from now.`);
+    }
+
+    return parsedDate;
+};
 
 const createCampaign = async (req, res, next) => {
     try {
         const { name, status, scheduledAt, targets } = req.body;
-
-        const userId = req.user?.id;
-        if (!userId) {
-            return res.status(401).json({ message: "User authentication is required." });
-        }
+        const userId = requireAuthenticatedUserId(req);
+        const parsedScheduledAt = parseScheduledAt(scheduledAt, {
+            required: status === "SCHEDULED",
+        });
 
         const parsedTargets = Array.isArray(targets)
             ? targets.map((email) => String(email).trim()).filter(Boolean)
@@ -23,7 +73,7 @@ const createCampaign = async (req, res, next) => {
         const campaign = await campaignRepo.create({
             name,
             status,
-            scheduledAt,
+            scheduledAt: parsedScheduledAt ?? null,
             createdById: userId,
         });
 
@@ -50,7 +100,8 @@ const createCampaign = async (req, res, next) => {
 // list all campaigns
 const getAllCampaigns = async (req, res, next) => {
 try {
-const campaigns = await campaignRepo.getAll();
+const userId = requireAuthenticatedUserId(req);
+const campaigns = await campaignRepo.getAllByUserId(userId);
 
     return res.status(StatusCodes.OK).json({
         campaigns: campaigns,
@@ -70,7 +121,8 @@ if (Number.isNaN(campaignId)) {
 }
 
 try {
-    const campaign = await campaignRepo.getById(campaignId);
+    const userId = requireAuthenticatedUserId(req);
+    const campaign = await campaignRepo.getByIdForUser(campaignId, userId);
 
     if (!campaign) {
         return next(new CustomAPIError("Campaign not found.", StatusCodes.NOT_FOUND));
@@ -108,16 +160,22 @@ if (status) {
     updateData.status = status;
 }
 
-if (scheduledAt !== undefined) {
-    // empty-ish value clears the schedule, otherwise convert it
-    updateData.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
-}
-
 try {
-    const foundCampaign = await campaignRepo.getById(campaignId);
+    const userId = requireAuthenticatedUserId(req);
+    const foundCampaign = await campaignRepo.getByIdForUser(campaignId, userId);
 
     if (!foundCampaign) {
         return next(new CustomAPIError("Campaign not found.", StatusCodes.NOT_FOUND));
+    }
+
+    if (status === "SCHEDULED" && scheduledAt === undefined && !foundCampaign.scheduledAt) {
+        return next(new BadRequestError("A scheduled campaign needs a scheduled date and time."));
+    }
+
+    if (scheduledAt !== undefined) {
+        updateData.scheduledAt = parseScheduledAt(scheduledAt, {
+            required: status === "SCHEDULED",
+        });
     }
 
     const updatedCampaign = await campaignRepo.update(campaignId, updateData);
@@ -140,7 +198,8 @@ if (Number.isNaN(campaignId)) {
 }
 
 try {
-    const campaign = await campaignRepo.getById(campaignId);
+    const userId = requireAuthenticatedUserId(req);
+    const campaign = await campaignRepo.getByIdForUser(campaignId, userId);
 
     if (!campaign) {
         return next(new CustomAPIError("Campaign not found.", StatusCodes.NOT_FOUND));

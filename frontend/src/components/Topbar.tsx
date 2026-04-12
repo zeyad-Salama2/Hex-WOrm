@@ -1,19 +1,19 @@
 "use client";
 // Needed because we will use document.cookie and window.location
 
+import { useRouter } from "next/navigation";
 import CyberButton from "@/src/components/ui/CyberButton";
+import { clearAuthTokenCookie } from "@/src/lib/api/client";
 
 export default function Topbar() {
+  const router = useRouter();
+
   // ==========================
   // Logout Function
   // ==========================
   const handleLogout = () => {
-    // Delete the authentication cookie
-    document.cookie =
-      "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
-    // Redirect to login page
-    window.location.href = "/login";
+    clearAuthTokenCookie();
+    router.push("/login?logged_out=1");
   };
 
   return (

@@ -1,31 +1,39 @@
 const prisma = require("../../prisma/prisma");
 
+const baseInclude = {
+    createdBy: {
+        select: {
+            id: true,
+            email: true,
+            role: true,
+        },
+    },
+    _count: {
+        select: {
+            targets: true,
+            events: true,
+        },
+    },
+};
+
+const detailInclude = {
+    ...baseInclude,
+    targets: true,
+    events: true,
+};
+
 class CampaignRepository {
     async create(data) {
         const result = await prisma.campaign.create({
             data: {
                 name: data.name,
                 status: data.status,
-                scheduledAt: data.scheduledAt || null,
+                scheduledAt: data.scheduledAt ?? null,
                 createdBy: {
                     connect: { id: data.createdById },
                 },
             },
-            include: {
-                createdBy: {
-                    select: {
-                        id: true,
-                        email: true,
-                        role: true,
-                    },
-                },
-                _count: {
-                    select: {
-                        targets: true,
-                        events: true,
-                    },
-                },
-            },
+            include: baseInclude,
         });
 
         return result;
@@ -33,80 +41,37 @@ class CampaignRepository {
 
 
 // get all campaigns
-async getAll() {
-
-    const includeStuff = {
-        createdBy: {
-            select: {
-                id: true,
-                email: true,
-                role: true,
-            },
-        },
-        _count: {
-            select: {
-                targets: true,
-                events: true,
-            },
-        },
-    };
-
+async getAllByUserId(userId) {
     return prisma.campaign.findMany({
+        where: {
+            createdById: userId,
+        },
         orderBy: {
             createdAt: "desc",
         },
-        include: includeStuff,
+        include: baseInclude,
     });
 }
 
 // get campaign by id
-async getById(id) {
-
-    // assuming service layer already validates id
-    return prisma.campaign.findUnique({
-        where: { id: id }, // intentionally verbose
-        include: {
-            createdBy: {
-                select: {
-                    id: true,
-                    email: true,
-                    role: true,
-                },
-            },
-            targets: true,
-            events: true,
-            _count: {
-                select: {
-                    targets: true,
-                    events: true,
-                },
-            },
+async getByIdForUser(id, userId) {
+    return prisma.campaign.findFirst({
+        where: {
+            id,
+            createdById: userId,
         },
+        include: detailInclude,
     });
 }
 
 // update campaign
 async update(id, data) {
 
-    const updated = await prisma.campaign.update({
-        where: { id },
-        data,
-        include: {
-            createdBy: {
-                select: {
-                    id: true,
-                    email: true,
-                    role: true,
-                },
-            },
-            _count: {
-                select: {
-                    targets: true,
-                    events: true,
-                },
-            },
-        },
-    });
+        const updated = await prisma.campaign.update({
+            where: { id },
+            data,
+            include: baseInclude,
+        });
 
     return updated;
 }

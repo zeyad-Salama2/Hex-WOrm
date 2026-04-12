@@ -6,9 +6,11 @@ import {
   deleteCampaign,
   getCampaignById,
   listCampaigns,
+  sendTestEmail,
   updateCampaign,
   type Campaign,
   type CreateCampaignInput,
+  type SendTestEmailInput,
   type UpdateCampaignInput,
 } from "@/src/lib/api/campaigns";
 
@@ -159,4 +161,35 @@ export function useDeleteCampaign() {
   }, []);
 
   return { remove, isDeleting, error, successMessage };
+}
+
+export function useSendTestEmail() {
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const send = useCallback(async (input: SendTestEmailInput) => {
+    setIsSending(true);
+    setError(null);
+    setSuccessMessage(null);
+    setPreviewUrl(null);
+
+    try {
+      const result = await sendTestEmail(input);
+      setSuccessMessage(result.message || "Email generated successfully.");
+      setPreviewUrl(result.previewUrl || null);
+      return result;
+    } catch (caughtError) {
+      const message = caughtError instanceof Error
+        ? caughtError.message
+        : "Unable to send test email.";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsSending(false);
+    }
+  }, []);
+
+  return { send, isSending, error, successMessage, previewUrl };
 }

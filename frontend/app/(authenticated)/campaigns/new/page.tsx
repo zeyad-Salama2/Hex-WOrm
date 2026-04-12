@@ -3,6 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateCampaign } from "@/src/hooks/useCampaigns";
+import {
+  formatDatetimeLocal,
+  getScheduleWindow,
+  validateScheduledAtValue,
+} from "@/src/lib/campaignSchedule";
 import type { CampaignStatus } from "@/src/lib/api/campaigns";
 
 const statusOptions: Array<{
@@ -27,13 +32,16 @@ export default function NewCampaignPage() {
   const [scheduledAt, setScheduledAt] = useState("");
   const [targets, setTargets] = useState("");
   const [formError, setFormError] = useState("");
+  const [scheduleError, setScheduleError] = useState("");
+  const scheduleWindow = getScheduleWindow();
 
   const handleSubmit = async () => {
-  const trimmedName = name.trim();
-  const parsedTargets = targets
-    .split(",")
-    .map((email) => email.trim())
-    .filter(Boolean);
+    const trimmedName = name.trim();
+    const parsedTargets = targets
+      .split(",")
+      .map((email) => email.trim())
+      .filter(Boolean);
+    const uniqueTargets = Array.from(new Set(parsedTargets));
 
     if (!trimmedName) {
       setFormError("Campaign name is required.");
@@ -45,16 +53,12 @@ export default function NewCampaignPage() {
       return;
     }
 
-    if (scheduledAt) {
-      const scheduledDate = new Date(scheduledAt);
-      if (Number.isNaN(scheduledDate.getTime())) {
-        setFormError("Please enter a valid scheduled date and time.");
-        return;
-      }
-    }
-
-    if (status === "SCHEDULED" && !scheduledAt) {
-      setFormError("A scheduled campaign needs a scheduled date and time.");
+    const scheduleValidation = validateScheduledAtValue(scheduledAt, {
+      required: status === "SCHEDULED",
+    });
+    if (scheduleValidation.error) {
+      setScheduleError(scheduleValidation.error);
+      setFormError(scheduleValidation.error);
       return;
     }
 
@@ -63,16 +67,22 @@ export default function NewCampaignPage() {
       return;
     }
 
+    if (uniqueTargets.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      setFormError("Target emails must be valid email addresses separated by commas.");
+      return;
+    }
+
     setFormError("");
+    setScheduleError("");
 
     try {
       const campaign = await create({
         name: trimmedName,
         status,
         scheduledAt: scheduledAt ? toIsoString(scheduledAt) : undefined,
-        targets: parsedTargets,
-    });
-    router.push(`/campaigns/${campaign.id}?created=1`);
+        targets: uniqueTargets,
+      });
+      router.push(`/campaigns/${campaign.id}?created=1`);
     } catch {
       // Hook exposes API error state for display.
     }
@@ -106,6 +116,7 @@ export default function NewCampaignPage() {
                 id="campaign-name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
+                disabled={isCreating}
                 className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
                 placeholder="Quarterly credential awareness simulation"
               />
@@ -118,6 +129,7 @@ export default function NewCampaignPage() {
               id="campaign-targets"
               value={targets}
               onChange={(event) => setTargets(event.target.value)}
+              disabled={isCreating}
               rows={4}
               className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
               placeholder="employee1@company.com, employee2@company.com"
@@ -133,7 +145,13 @@ export default function NewCampaignPage() {
               <select
                 id="campaign-status"
                 value={status}
-                onChange={(event) => setStatus(event.target.value as CampaignStatus)}
+                onChange={(event) => {
+                  setStatus(event.target.value as CampaignStatus);
+                  if (scheduleError) {
+                    setScheduleError("");
+                  }
+                }}
+                disabled={isCreating}
                 className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
               >
                 {statusOptions.map((option) => (
@@ -155,12 +173,25 @@ export default function NewCampaignPage() {
                 id="campaign-scheduled-at"
                 type="datetime-local"
                 value={scheduledAt}
-                onChange={(event) => setScheduledAt(event.target.value)}
+                onChange={(event) => {
+                  setScheduledAt(event.target.value);
+                  if (scheduleError) {
+                    setScheduleError("");
+                  }
+                }}
+                disabled={isCreating}
+                min={formatDatetimeLocal(scheduleWindow.min)}
+                max={formatDatetimeLocal(scheduleWindow.max)}
+                aria-invalid={scheduleError ? "true" : "false"}
                 className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
               />
               <p className="mt-2 text-xs text-[color:var(--muted)]">
-                Leave this blank unless you want to schedule the campaign for a specific date and time.
+                Leave this blank unless you want to schedule the campaign for a specific date and time. Scheduling is
+                limited to now through 50 years ahead.
               </p>
+              {scheduleError && (
+                <p className="mt-2 text-xs text-rose-300">{scheduleError}</p>
+              )}
             </div>
           </div>
         </div>
