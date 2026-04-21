@@ -1,13 +1,20 @@
 const { spawnSync } = require("child_process");
+const path = require("path");
 
 const fallbackDatabaseUrl =
   "postgresql://postgres:postgres@localhost:5432/phishing_sim_dashboard?schema=public";
 
-const prismaBin = process.platform === "win32" ? "npx.cmd" : "npx";
+const prismaCliPath = path.join(
+  process.cwd(),
+  "node_modules",
+  "prisma",
+  "build",
+  "index.js"
+);
 
 const result = spawnSync(
-  prismaBin,
-  ["prisma", "generate", "--schema", "prisma/schema.prisma"],
+  process.execPath,
+  [prismaCliPath, "generate", "--schema", "prisma/schema.prisma"],
   {
     cwd: process.cwd(),
     stdio: "inherit",
@@ -17,6 +24,11 @@ const result = spawnSync(
     },
   }
 );
+
+if (result.error) {
+  console.error("[prisma:generate] Failed to start Prisma CLI:", result.error);
+  process.exit(1);
+}
 
 if (typeof result.status === "number") {
   process.exit(result.status);
