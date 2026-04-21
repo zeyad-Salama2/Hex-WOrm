@@ -12,6 +12,10 @@ const errorHandlerMiddleware = require("./middleware/error_handler.js");
 // Middleware Wall
 const app = express();
 app.use(cors());
+app.locals.dbStatus = {
+  ready: false,
+  lastError: null,
+};
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +32,7 @@ app.use(errorHandlerMiddleware);
 // Middleware Wall Over :)
 
 const port = process.env.APP_PORT || process.env.PORT || 4000;
+const databaseRetryDelayMs = 5000;
 
 const verifyDatabaseConnection = async () => {
   try {
@@ -42,20 +47,33 @@ const verifyDatabaseConnection = async () => {
     console.log(
       `[startup] Prisma connected to database "${details?.db}" as "${details?.usr}"`
     );
+
+    app.locals.dbStatus = {
+      ready: true,
+      lastError: null,
+    };
   } catch (error) {
+    app.locals.dbStatus = {
+      ready: false,
+      lastError: error.message,
+    };
     console.error("[startup] Prisma connection test failed:", error);
     throw error;
   }
 };
 
-const start = async () => {
+const connectToDatabaseWithRetry = async () => {
   try {
     await verifyDatabaseConnection();
-    app.listen(port, () => console.log(`[startup] Backend on http://localhost:${port}`));
   } catch (error) {
-    console.error("[startup] Backend failed to start:", error);
-    process.exit(1);
+    console.error(
+      `[startup] Retrying database connection in ${databaseRetryDelayMs / 1000}s`
+    );
+    setTimeout(connectToDatabaseWithRetry, databaseRetryDelayMs);
   }
 };
 
-start();
+app.listen(port, () => {
+  console.log(`[startup] Backend on http://localhost:${port}`);
+  connectToDatabaseWithRetry();
+});

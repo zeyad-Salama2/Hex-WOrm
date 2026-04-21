@@ -7,7 +7,14 @@ const { sendTestEmail } = require("../controllers/campaign_controller");
 const authMiddleware = require("../middleware/auth.js");
 
 router.get("/", (req, res) => res.send("Backend running. Try /health"));
-router.get("/health", (req, res) => res.json({ ok: true }));
+router.get("/health", (req, res) => {
+  const db = req.app.locals.dbStatus || { ready: false };
+
+  res.status(200).json({
+    ok: true,
+    database: db.ready ? "connected" : "connecting",
+  });
+});
 
 router.route("/dashboard").get(authMiddleware, dashboard);
 router.route("/users/").get(getAllUsers);
