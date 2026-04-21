@@ -1,0 +1,14 @@
+node_modules/
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+.env.*
+.vscode/
+.DS_Store
+Thumbs.db
+npm-debug.log*
+backend/generated/
+.next/
+dist/
+build/
