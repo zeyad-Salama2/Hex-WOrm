@@ -53,8 +53,13 @@ class UserRepository {
             throw err;
         }
     }
-    async update(_id) {
-        throw new CustomAPIError("Method not implemented", StatusCodes.INTERNAL_SERVER_ERROR);
+    async updatePasswordHash(_id, _passwordHash) {
+        return prisma.user.update({
+            where: { id: _id },
+            data: {
+                passwordHash: _passwordHash,
+            },
+        });
     }
     async delete(_id) {
         throw new CustomAPIError("Method not implemented", StatusCodes.INTERNAL_SERVER_ERROR);
