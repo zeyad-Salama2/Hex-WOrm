@@ -4,6 +4,8 @@ const express = require("express");
 const cors = require("cors");
 const prisma = require("../prisma/prisma.js");
 
+const helmet = require("helmet");
+
 const mainRouter = require("./routes/app_routes.js");
 const campaignRouter = require("./routes/campaign_routes.js"); // NEW
 const notFoundMiddleware = require("./middleware/not_found.js");
@@ -19,7 +21,7 @@ app.locals.dbStatus = {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
+app.use(helmet());
 
 // '/' and '/health' have both been moved into routes/app_routes.js
 app.use("/", mainRouter);

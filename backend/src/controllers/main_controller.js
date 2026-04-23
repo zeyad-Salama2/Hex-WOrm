@@ -2,6 +2,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { StatusCodes } = require("http-status-codes");
+const { z } = require("zod");
 const { UserRepository } = require("../repositories/UserRepository");
 const { BadRequestError, CustomAPIError } = require("../errors");
 
@@ -62,12 +63,27 @@ const loginUser = async(req,res,next) => {
     }
 }
 
+const userSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6)
+        .refine((password) => /[A-Z]/.test(password), { message: "Password must contain at least one uppercase letter."})
+        .refine((password) => /[0-9]/.test(password), { message: "Password must contain a number."})
+        .refine((password) => /[^A-Za-z0-9]/.test(password), { message: "Passwords must contain a special character."})
+})
+
 const registerUser = async (req, res, next) => {
     const { email, password } = req.body;
     console.log("[registerUser] request body:", req.body);
 
     if (!email || !password) {
         throw new BadRequestError("Please provide email and password.");
+    }
+
+    try {
+        userSchema.parse({email, password});
+    } catch(err) {
+        console.error("[registerUser] registration failed:", err);
+        throw new CustomAPIError("Data validation failed", StatusCodes.BAD_REQUEST)
     }
 
     try {
