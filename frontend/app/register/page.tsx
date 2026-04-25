@@ -13,12 +13,21 @@ import { getAuthTokenFromCookie, requestJson } from "@/src/lib/api/client";
 
 // Zod schema defines field rules and cross-field validation.
 // - email: valid email format
-// - password: minimum 6 chars
+// - password: minimum 8 chars, one uppercase letter, one number
 // - confirmPassword: must match password
 const registerSchema = z
   .object({
-    email: z.string().email("Please enter a valid email address."),
-    password: z.string().min(6, "Password must be at least 6 characters."),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Email is required.")
+      .email("Please enter a valid email address."),
+    password: z
+      .string()
+      .min(1, "Password is required.")
+      .min(8, "Password must be at least 8 characters long.")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+      .regex(/\d/, "Password must contain at least one number."),
     confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -151,7 +160,7 @@ export default function RegisterPage() {
               type="password"
               {...register("password")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters, 1 uppercase, 1 number"
               autoComplete="new-password"
             />
             {errors.password && (
