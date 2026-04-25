@@ -21,6 +21,6 @@ router.route("/users/").get(getAllUsers);
 router.route("/login").post(loginUser);
 router.route("/register").post(registerUser);
 router.route("/settings/password").patch(authMiddleware, changePassword);
-router.post("/send-test-email", sendTestEmail);
+router.post("/send-test-email", authMiddleware, sendTestEmail);
 
 module.exports = router;

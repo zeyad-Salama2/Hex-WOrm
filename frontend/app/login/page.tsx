@@ -17,10 +17,19 @@ import {
 
 // Zod schema defines the shape + rules for our login form data.
 // - email must be a valid email format
-// - password must be at least 6 characters
+// - password must be at least 8 characters, contain an uppercase letter, and contain a number
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required.")
+    .email("Please enter a valid email address."),
+  password: z
+    .string()
+    .min(1, "Password is required.")
+    .min(8, "Password must be at least 8 characters long.")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+    .regex(/\d/, "Password must contain at least one number."),
 });
 
 // Infer TypeScript type directly from schema so types stay in sync with validation rules.
@@ -185,7 +194,7 @@ function LoginPageContent() {
               type="password"
               {...register("password")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters, 1 uppercase, 1 number"
               autoComplete="current-password"
             />
             {errors.password && (
