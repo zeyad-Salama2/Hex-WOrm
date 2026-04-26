@@ -361,6 +361,7 @@ const deleteCampaign = async (req, res, next) => {
     }
 
     await campaignRepo.delete(campaignId);
+    console.log(`[deleteCampaign] campaign deleted id=${campaignId} targetCount=${campaign.targets.length}`);
 
     return res.status(StatusCodes.OK).json({
       msg: "Campaign deleted successfully.",

@@ -94,8 +94,22 @@ class CampaignRepository {
   }
 
   async delete(id) {
-    return prisma.campaign.delete({
-      where: { id },
+    return prisma.$transaction(async (tx) => {
+      await tx.event.deleteMany({
+        where: {
+          campaignId: id,
+        },
+      });
+
+      await tx.target.deleteMany({
+        where: {
+          campaignId: id,
+        },
+      });
+
+      return tx.campaign.delete({
+        where: { id },
+      });
     });
   }
 
