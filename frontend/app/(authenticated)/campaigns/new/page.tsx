@@ -17,7 +17,7 @@ const statusOptions: Array<{
 }> = [
   { value: "DRAFT", label: "Draft", description: "Create the campaign without a delivery schedule yet." },
   { value: "SCHEDULED", label: "Scheduled", description: "Save the campaign with a planned send time." },
-  { value: "SENT", label: "Sent", description: "Mark the campaign as already sent." },
+  { value: "SENT", label: "Sent", description: "Create the campaign and attempt to send immediately." },
 ];
 
 function toIsoString(value: string) {
@@ -76,13 +76,22 @@ export default function NewCampaignPage() {
     setScheduleError("");
 
     try {
-      const campaign = await create({
+      const result = await create({
         name: trimmedName,
         status,
         scheduledAt: scheduledAt ? toIsoString(scheduledAt) : undefined,
         targets: uniqueTargets,
       });
-      router.push(`/campaigns/${campaign.id}?created=1`);
+
+      const params = new URLSearchParams({ created: "1" });
+      if (result.message) {
+        params.set("message", result.message);
+      }
+      if (result.emailDelivery?.status) {
+        params.set("emailStatus", result.emailDelivery.status);
+      }
+
+      router.push(`/campaigns/${result.campaign.id}?${params.toString()}`);
     } catch {
       // Hook exposes API error state for display.
     }
@@ -121,23 +130,25 @@ export default function NewCampaignPage() {
                 placeholder="Quarterly credential awareness simulation"
               />
             </div>
-          <div>
-            <label htmlFor="campaign-targets" className="text-sm font-medium text-[color:var(--muted)]">
-              Target Emails
-            </label>
-            <textarea
-              id="campaign-targets"
-              value={targets}
-              onChange={(event) => setTargets(event.target.value)}
-              disabled={isCreating}
-              rows={4}
-              className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
-              placeholder="employee1@company.com, employee2@company.com"
-            />
-            <p className="mt-2 text-xs text-[color:var(--muted)]">
-              Enter one or more target email addresses, separated by commas.
-            </p>
-          </div>
+
+            <div>
+              <label htmlFor="campaign-targets" className="text-sm font-medium text-[color:var(--muted)]">
+                Target Emails
+              </label>
+              <textarea
+                id="campaign-targets"
+                value={targets}
+                onChange={(event) => setTargets(event.target.value)}
+                disabled={isCreating}
+                rows={4}
+                className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30"
+                placeholder="employee1@company.com, employee2@company.com"
+              />
+              <p className="mt-2 text-xs text-[color:var(--muted)]">
+                Enter one or more target email addresses, separated by commas.
+              </p>
+            </div>
+
             <div>
               <label htmlFor="campaign-status" className="text-sm font-medium text-[color:var(--muted)]">
                 Status

@@ -9,8 +9,11 @@ import {
   sendTestEmail,
   updateCampaign,
   type Campaign,
+  type CampaignMutationResult,
   type CreateCampaignInput,
+  type EmailDeliverySummary,
   type SendTestEmailInput,
+  type SendTestEmailResult,
   type UpdateCampaignInput,
 } from "@/src/lib/api/campaigns";
 
@@ -41,6 +44,25 @@ export function useCampaigns() {
   }, [refetch]);
 
   return { data, isLoading, error, refetch, setData };
+}
+
+function buildEmailDeliveryMessage(baseMessage: string, emailDelivery?: EmailDeliverySummary | null) {
+  if (!emailDelivery) {
+    return baseMessage;
+  }
+
+  switch (emailDelivery.status) {
+    case "sent":
+      return baseMessage;
+    case "timed_out":
+      return `${baseMessage} Email sending timed out.`;
+    case "partial":
+      return `${baseMessage} Some emails failed or timed out.`;
+    case "failed":
+      return `${baseMessage} Email sending failed.`;
+    default:
+      return baseMessage;
+  }
 }
 
 export function useCampaign(id: number | null) {
@@ -84,15 +106,20 @@ export function useCreateCampaign() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const create = useCallback(async (input: CreateCampaignInput) => {
+  const create = useCallback(async (input: CreateCampaignInput): Promise<CampaignMutationResult> => {
     setIsCreating(true);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      const campaign = await createCampaign(input);
-      setSuccessMessage("Campaign created successfully.");
-      return campaign;
+      const result = await createCampaign(input);
+      setSuccessMessage(
+        buildEmailDeliveryMessage(
+          result.message || "Campaign created successfully.",
+          result.emailDelivery
+        )
+      );
+      return result;
     } catch (caughtError) {
       const message = caughtError instanceof Error
         ? caughtError.message
@@ -112,15 +139,20 @@ export function useUpdateCampaign() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const update = useCallback(async (id: number, input: UpdateCampaignInput) => {
+  const update = useCallback(async (id: number, input: UpdateCampaignInput): Promise<CampaignMutationResult> => {
     setIsUpdating(true);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      const campaign = await updateCampaign(id, input);
-      setSuccessMessage("Campaign updated successfully.");
-      return campaign;
+      const result = await updateCampaign(id, input);
+      setSuccessMessage(
+        buildEmailDeliveryMessage(
+          result.message || "Campaign updated successfully.",
+          result.emailDelivery
+        )
+      );
+      return result;
     } catch (caughtError) {
       const message = caughtError instanceof Error
         ? caughtError.message
@@ -169,7 +201,7 @@ export function useSendTestEmail() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const send = useCallback(async (input: SendTestEmailInput) => {
+  const send = useCallback(async (input: SendTestEmailInput): Promise<SendTestEmailResult> => {
     setIsSending(true);
     setError(null);
     setSuccessMessage(null);
@@ -177,7 +209,17 @@ export function useSendTestEmail() {
 
     try {
       const result = await sendTestEmail(input);
-      setSuccessMessage(result.message || "Email generated successfully.");
+
+      if (result.emailDelivery?.status === "sent") {
+        setSuccessMessage(result.message || "Email sent successfully.");
+      } else if (result.emailDelivery?.status === "timed_out") {
+        setError(result.message || "Email send timed out.");
+      } else if (result.emailDelivery?.status === "failed") {
+        setError(result.message || "Email sending failed.");
+      } else {
+        setSuccessMessage(result.message || "Email generated successfully.");
+      }
+
       setPreviewUrl(result.previewUrl || null);
       return result;
     } catch (caughtError) {

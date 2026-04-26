@@ -2,6 +2,7 @@ import { requestJson } from "@/src/lib/api/client";
 
 export type CampaignStatus = "DRAFT" | "SCHEDULED" | "SENT";
 export type UserRole = "ADMIN" | "READ_ONLY";
+export type EmailDeliveryStatus = "skipped" | "sent" | "partial" | "timed_out" | "failed";
 
 export interface CampaignCount {
   targets: number;
@@ -14,6 +15,28 @@ export interface CampaignUser {
   role: UserRole;
 }
 
+export interface CampaignTarget {
+  id: number;
+  email: string;
+  token: string;
+  campaignId: number;
+}
+
+export interface EmailDeliverySummary {
+  status: EmailDeliveryStatus;
+  attempted?: number;
+  sent?: number;
+  failed?: number;
+  timedOut?: number;
+  details?: Array<{
+    email: string;
+    status: "sent" | "timed_out" | "failed";
+    message?: string;
+    messageId?: string;
+    previewUrl?: string | null;
+  }>;
+}
+
 export interface Campaign {
   id: number;
   name: string;
@@ -22,7 +45,7 @@ export interface Campaign {
   createdAt: string;
   createdById: number;
   createdBy?: CampaignUser;
-  targets?: unknown[];
+  targets?: CampaignTarget[];
   events?: unknown[];
   _count?: CampaignCount;
 }
@@ -38,10 +61,24 @@ export interface UpdateCampaignInput {
   name?: string;
   status?: CampaignStatus;
   scheduledAt?: string | null;
+  targets?: string[];
 }
 
 export interface SendTestEmailInput {
   to: string;
+}
+
+export interface CampaignMutationResult {
+  campaign: Campaign;
+  message?: string;
+  emailDelivery?: EmailDeliverySummary;
+}
+
+export interface SendTestEmailResult {
+  message: string;
+  messageId?: string;
+  previewUrl?: string | null;
+  emailDelivery?: EmailDeliverySummary;
 }
 
 export async function listCampaigns(): Promise<Campaign[]> {
@@ -64,8 +101,8 @@ export async function getCampaignById(id: number): Promise<Campaign> {
   return payload.campaign;
 }
 
-export async function createCampaign(input: CreateCampaignInput): Promise<Campaign> {
-  const payload = await requestJson<{ campaign: Campaign }>(
+export async function createCampaign(input: CreateCampaignInput): Promise<CampaignMutationResult> {
+  return requestJson(
     "campaigns",
     {
       method: "POST",
@@ -73,12 +110,10 @@ export async function createCampaign(input: CreateCampaignInput): Promise<Campai
     },
     { fallbackMessage: "Unable to create campaign.", requiresAuth: true }
   );
-
-  return payload.campaign;
 }
 
-export async function updateCampaign(id: number, input: UpdateCampaignInput): Promise<Campaign> {
-  const payload = await requestJson<{ campaign: Campaign }>(
+export async function updateCampaign(id: number, input: UpdateCampaignInput): Promise<CampaignMutationResult> {
+  return requestJson(
     `campaigns/${id}`,
     {
       method: "PATCH",
@@ -86,8 +121,6 @@ export async function updateCampaign(id: number, input: UpdateCampaignInput): Pr
     },
     { fallbackMessage: "Unable to update campaign.", requiresAuth: true }
   );
-
-  return payload.campaign;
 }
 
 export async function deleteCampaign(id: number): Promise<string> {
@@ -100,11 +133,7 @@ export async function deleteCampaign(id: number): Promise<string> {
   return payload.msg;
 }
 
-export async function sendTestEmail(input: SendTestEmailInput): Promise<{
-  message: string;
-  messageId?: string;
-  previewUrl?: string | null;
-}> {
+export async function sendTestEmail(input: SendTestEmailInput): Promise<SendTestEmailResult> {
   return requestJson(
     "send-test-email",
     {

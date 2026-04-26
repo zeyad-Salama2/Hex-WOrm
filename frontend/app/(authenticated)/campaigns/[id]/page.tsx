@@ -85,6 +85,7 @@ function CampaignEditor({
   const [name, setName] = useState(campaign.name);
   const [status, setStatus] = useState<CampaignStatus>(campaign.status);
   const [scheduledAt, setScheduledAt] = useState(toDatetimeLocal(campaign.scheduledAt));
+  const [targets, setTargets] = useState((campaign.targets ?? []).map((target) => target.email).join(", "));
   const [testEmailTo, setTestEmailTo] = useState(campaign.createdBy?.email ?? "");
   const [formError, setFormError] = useState("");
   const [scheduleError, setScheduleError] = useState("");
@@ -93,8 +94,18 @@ function CampaignEditor({
 
   const handleUpdate = async () => {
     const trimmedName = name.trim();
+    const parsedTargets = Array.from(
+      new Set(
+        targets
+          .split(",")
+          .map((email) => email.trim())
+          .filter(Boolean)
+      )
+    );
     const currentScheduledAt = toDatetimeLocal(campaign.scheduledAt);
+    const currentTargets = (campaign.targets ?? []).map((target) => target.email).join(", ");
     const scheduleChanged = scheduledAt !== currentScheduledAt;
+    const targetsChanged = targets !== currentTargets;
 
     if (!trimmedName) {
       setFormError("Campaign name is required.");
@@ -103,6 +114,21 @@ function CampaignEditor({
 
     if (!statusOptions.includes(status)) {
       setFormError("Please choose a valid campaign status.");
+      return;
+    }
+
+    if (campaign.status === "SENT" && status !== "SENT") {
+      setFormError("Sent campaigns cannot be moved back to draft or scheduled.");
+      return;
+    }
+
+    if (status === "SENT" && parsedTargets.length === 0) {
+      setFormError("A sent campaign needs at least one target email.");
+      return;
+    }
+
+    if (parsedTargets.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      setFormError("Target emails must be valid email addresses separated by commas.");
       return;
     }
 
@@ -129,6 +155,10 @@ function CampaignEditor({
 
     if (scheduledAt !== currentScheduledAt) {
       payload.scheduledAt = scheduledAt ? toIsoString(scheduledAt) : null;
+    }
+
+    if (targetsChanged) {
+      payload.targets = parsedTargets;
     }
 
     if (Object.keys(payload).length === 0) {
@@ -219,6 +249,26 @@ function CampaignEditor({
             </div>
 
             <div>
+              <label htmlFor="campaign-targets" className="text-sm font-medium text-[color:var(--muted)]">
+                Target Emails
+              </label>
+              <textarea
+                id="campaign-targets"
+                value={targets}
+                onChange={(event) => setTargets(event.target.value)}
+                disabled={isUpdating || isDeleting || campaign.status === "SENT"}
+                rows={4}
+                className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="employee1@company.com, employee2@company.com"
+              />
+              <p className="mt-2 text-xs text-[color:var(--muted)]">
+                {campaign.status === "SENT"
+                  ? "Targets are locked after a campaign has been sent."
+                  : "Edit target emails for draft or scheduled campaigns by separating them with commas."}
+              </p>
+            </div>
+
+            <div>
               <label htmlFor="campaign-status" className="text-sm font-medium text-[color:var(--muted)]">
                 Status
               </label>
@@ -231,7 +281,7 @@ function CampaignEditor({
                     setScheduleError("");
                   }
                 }}
-                disabled={isUpdating || isDeleting}
+                disabled={isUpdating || isDeleting || campaign.status === "SENT"}
                 className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {statusOptions.map((option) => (
@@ -279,6 +329,7 @@ function CampaignEditor({
                 setName(campaign.name);
                 setStatus(campaign.status);
                 setScheduledAt(toDatetimeLocal(campaign.scheduledAt));
+                setTargets((campaign.targets ?? []).map((target) => target.email).join(", "));
                 setFormError("");
                 setScheduleError("");
               }}
@@ -394,8 +445,9 @@ function CampaignEditor({
           <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
             <h3 className="text-lg font-semibold text-[color:var(--text)]">Current Send Behavior</h3>
             <p className="mt-2 text-sm text-[color:var(--muted)]">
-              This backend sends campaign emails during campaign creation when status is <code>SENT</code> and
-              target emails are provided.
+              Creating a campaign as <code>SENT</code>, or moving a draft/scheduled campaign to <code>SENT</code>,
+              now attempts email delivery with timeout protection and returns a clear success, partial-success, or
+              timeout result.
             </p>
           </div>
         </div>
@@ -413,6 +465,8 @@ export default function CampaignDetailPage() {
   }, [params.id]);
   const { data: campaign, isLoading, error, refetch } = useCampaign(campaignId);
   const showCreatedBanner = searchParams.get("created") === "1";
+  const createdMessage = searchParams.get("message");
+  const emailStatus = searchParams.get("emailStatus");
 
   return (
     <section className="space-y-8">
@@ -423,10 +477,12 @@ export default function CampaignDetailPage() {
               {isLoading ? "Loading campaign..." : campaign?.name ?? "Campaign"}
             </h2>
             {!isLoading && campaign?.status && (
-              <span className={[
-                "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                getStatusClasses(campaign.status),
-              ].join(" ")}>
+              <span
+                className={[
+                  "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
+                  getStatusClasses(campaign.status),
+                ].join(" ")}
+              >
                 {formatStatusLabel(campaign.status)}
               </span>
             )}
@@ -452,7 +508,10 @@ export default function CampaignDetailPage() {
 
       {showCreatedBanner && (
         <p className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-          Campaign created successfully.
+          {createdMessage ||
+            (emailStatus === "timed_out"
+              ? "Campaign created, but email sending timed out."
+              : "Campaign created successfully.")}
         </p>
       )}
 

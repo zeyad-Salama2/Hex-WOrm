@@ -27,7 +27,7 @@ class CampaignRepository {
   async create(data) {
     const targets = Array.isArray(data.targets) ? data.targets : [];
 
-    const result = await prisma.campaign.create({
+    return prisma.campaign.create({
       data: {
         name: data.name,
         status: data.status,
@@ -44,8 +44,6 @@ class CampaignRepository {
       },
       include: detailInclude,
     });
-
-    return result;
   }
 
   async getAllByUserId(userId) {
@@ -71,13 +69,28 @@ class CampaignRepository {
   }
 
   async update(id, data) {
-    const updated = await prisma.campaign.update({
-      where: { id },
-      data,
-      include: baseInclude,
-    });
+    const targets = Array.isArray(data.targets) ? data.targets : null;
+    const updateData = { ...data };
+    delete updateData.targets;
 
-    return updated;
+    return prisma.campaign.update({
+      where: { id },
+      data: {
+        ...updateData,
+        ...(targets !== null
+          ? {
+              targets: {
+                deleteMany: {},
+                create: targets.map((email) => ({
+                  email,
+                  token: crypto.randomBytes(24).toString("hex"),
+                })),
+              },
+            }
+          : {}),
+      },
+      include: detailInclude,
+    });
   }
 
   async delete(id) {
@@ -120,17 +133,17 @@ class CampaignRepository {
     });
 
     const totalCampaigns = campaigns.length;
-    const totalEmailsSent = campaigns.reduce((sum, c) => sum + c.targets.length, 0);
+    const totalEmailsSent = campaigns.reduce((sum, campaign) => sum + campaign.targets.length, 0);
     const totalOpens = campaigns.reduce(
-      (sum, c) => sum + c.events.filter((e) => e.type === "OPEN").length,
+      (sum, campaign) => sum + campaign.events.filter((event) => event.type === "OPEN").length,
       0
     );
     const totalClicks = campaigns.reduce(
-      (sum, c) => sum + c.events.filter((e) => e.type === "CLICK").length,
+      (sum, campaign) => sum + campaign.events.filter((event) => event.type === "CLICK").length,
       0
     );
     const totalSubmits = campaigns.reduce(
-      (sum, c) => sum + c.events.filter((e) => e.type === "SUBMIT").length,
+      (sum, campaign) => sum + campaign.events.filter((event) => event.type === "SUBMIT").length,
       0
     );
 

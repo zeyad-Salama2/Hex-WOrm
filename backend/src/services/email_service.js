@@ -1,58 +1,87 @@
-// nodemailer setup — tried to keep this simple, might tweak later if needed
 const nodemailer = require("nodemailer");
 
-// caching this so we don't recreate transporter every time
 let transporterPromise;
+const DEFAULT_EMAIL_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS) || 10000;
 
-async function getTransporter() {
-    // using ethereal for testing (make sense for testing since no extra baggage like they would be with gmail etc) 
-    if (!transporterPromise) {
-        transporterPromise = nodemailer.createTestAccount().then((testAccount) => {
-            return nodemailer.createTransport({
-                host: "smtp.ethereal.email",
-                port: 587,
-                auth: {
-                    user: testAccount.user,
-                    pass: testAccount.pass,
-                },
-            });
-        });
-    }
-    return transporterPromise;
+function createTimeoutError(timeoutMs) {
+  const error = new Error(`Email sending timed out after ${timeoutMs}ms.`);
+  error.code = "EMAIL_TIMEOUT";
+  return error;
 }
 
-// main function for sending emails
-const sendEmail = async (options) => {
-    // destructuring, i have purposefully left it loose if anyone wants to add more fields
-    const { to, subject, text, html } = options;
+async function withTimeout(promise, timeoutMs) {
+  let timeoutHandle;
 
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutHandle = setTimeout(() => {
+      reject(createTimeoutError(timeoutMs));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
+}
+
+async function getTransporter() {
+  if (!transporterPromise) {
+    transporterPromise = nodemailer.createTestAccount().then((testAccount) =>
+      nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        connectionTimeout: DEFAULT_EMAIL_TIMEOUT_MS,
+        greetingTimeout: DEFAULT_EMAIL_TIMEOUT_MS,
+        socketTimeout: DEFAULT_EMAIL_TIMEOUT_MS,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      })
+    );
+  }
+
+  try {
+    return await transporterPromise;
+  } catch (error) {
+    transporterPromise = null;
+    throw error;
+  }
+}
+
+const sendEmail = async (options, { timeoutMs = DEFAULT_EMAIL_TIMEOUT_MS } = {}) => {
+  const { to, subject, text, html } = options;
+
+  const emailTask = (async () => {
     const transporter = await getTransporter();
-
-    const info = await transporter.sendMail ({
-        from: '"HexW0rms" <no-reply@hexworms.local>', // maybe make this configurable later?
-        to: to,
-        subject: subject,
-        text: text,
-        html: html,
+    const info = await transporter.sendMail({
+      from: '"HexW0rms" <no-reply@hexworms.local>',
+      to,
+      subject,
+      text,
+      html,
     });
 
     const previewUrl = nodemailer.getTestMessageUrl(info);
 
-    // logging its not a proper logger but more than enough than we need 
     console.log("Email sent:", info.messageId);
     if (previewUrl) {
-        console.log("Preview URL:", previewUrl);
+      console.log("Preview URL:", previewUrl);
     } else {
-        console.log("No preview URL (not ethereal?)");
+      console.log("No preview URL (not ethereal?)");
     }
 
     return {
-        messageId: info.messageId,
-        previewUrl: previewUrl,
+      messageId: info.messageId,
+      previewUrl,
     };
+  })();
 
-    };
+  return withTimeout(emailTask, timeoutMs);
+};
 
-    module.exports = {
-    sendEmail,
-    };
+module.exports = {
+  sendEmail,
+  DEFAULT_EMAIL_TIMEOUT_MS,
+};
