@@ -181,7 +181,9 @@ export default function CampaignsPage() {
                             </span>
                           </td>
                           <td className="px-5 py-4 text-[color:var(--muted)]">
-                            {formatDate(campaign.scheduledAt ?? campaign.createdAt)}
+                            {campaign.scheduledAt
+                              ? `Scheduled: ${formatDate(campaign.scheduledAt)}`
+                              : `Created: ${formatDate(campaign.createdAt)}`}
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-4">
@@ -194,7 +196,7 @@ export default function CampaignsPage() {
                               <button
                                 type="button"
                                 onClick={() => void handleDelete(campaign.id)}
-                                disabled={isRemoving}
+                                disabled={isDeleting}
                                 className="inline-flex items-center gap-1 text-sm font-medium text-rose-300 transition-colors hover:text-rose-200 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <TrashIcon className="h-4 w-4" />

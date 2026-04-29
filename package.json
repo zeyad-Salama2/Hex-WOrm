@@ -1,0 +1,13 @@
+{
+  "name": "hex-worm-deploy",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix backend ci && npm --prefix backend run build",
+    "start": "npm --prefix backend start"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^4.2.4"
+  }
+}

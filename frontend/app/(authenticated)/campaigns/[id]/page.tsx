@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   useCampaign,
   useDeleteCampaign,
+  useSendTestEmail,
   useUpdateCampaign,
 } from "@/src/hooks/useCampaigns";
+import {
+  formatDatetimeLocal,
+  getScheduleWindow,
+  validateScheduledAtValue,
+} from "@/src/lib/campaignSchedule";
 import type { Campaign, CampaignStatus, UpdateCampaignInput } from "@/src/lib/api/campaigns";
 
 function getStatusClasses(status: CampaignStatus) {
@@ -75,13 +81,31 @@ function CampaignEditor({
   const router = useRouter();
   const { update, isUpdating, error: updateError, successMessage: updateSuccessMessage } = useUpdateCampaign();
   const { remove, isDeleting, error: deleteError, successMessage: deleteSuccessMessage } = useDeleteCampaign();
+  const { send, isSending, error: sendError, successMessage: sendSuccessMessage, previewUrl } = useSendTestEmail();
   const [name, setName] = useState(campaign.name);
   const [status, setStatus] = useState<CampaignStatus>(campaign.status);
   const [scheduledAt, setScheduledAt] = useState(toDatetimeLocal(campaign.scheduledAt));
+  const [targets, setTargets] = useState((campaign.targets ?? []).map((target) => target.email).join(", "));
+  const [testEmailTo, setTestEmailTo] = useState(campaign.createdBy?.email ?? "");
   const [formError, setFormError] = useState("");
+  const [scheduleError, setScheduleError] = useState("");
+  const [sendFormError, setSendFormError] = useState("");
+  const scheduleWindow = getScheduleWindow();
 
   const handleUpdate = async () => {
     const trimmedName = name.trim();
+    const parsedTargets = Array.from(
+      new Set(
+        targets
+          .split(",")
+          .map((email) => email.trim())
+          .filter(Boolean)
+      )
+    );
+    const currentScheduledAt = toDatetimeLocal(campaign.scheduledAt);
+    const currentTargets = (campaign.targets ?? []).map((target) => target.email).join(", ");
+    const scheduleChanged = scheduledAt !== currentScheduledAt;
+    const targetsChanged = targets !== currentTargets;
 
     if (!trimmedName) {
       setFormError("Campaign name is required.");
@@ -93,15 +117,28 @@ function CampaignEditor({
       return;
     }
 
-    if (status === "SCHEDULED" && !scheduledAt) {
-      setFormError("A scheduled campaign needs a scheduled date and time.");
+    if (campaign.status === "SENT" && status !== "SENT") {
+      setFormError("Sent campaigns cannot be moved back to draft or scheduled.");
       return;
     }
 
-    if (scheduledAt) {
-      const scheduledDate = new Date(scheduledAt);
-      if (Number.isNaN(scheduledDate.getTime())) {
-        setFormError("Please enter a valid scheduled date and time.");
+    if (status === "SENT" && parsedTargets.length === 0) {
+      setFormError("A sent campaign needs at least one target email.");
+      return;
+    }
+
+    if (parsedTargets.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      setFormError("Target emails must be valid email addresses separated by commas.");
+      return;
+    }
+
+    if (scheduleChanged || (status === "SCHEDULED" && status !== campaign.status)) {
+      const scheduleValidation = validateScheduledAtValue(scheduledAt, {
+        required: status === "SCHEDULED",
+      });
+      if (scheduleValidation.error) {
+        setScheduleError(scheduleValidation.error);
+        setFormError(scheduleValidation.error);
         return;
       }
     }
@@ -116,9 +153,12 @@ function CampaignEditor({
       payload.status = status;
     }
 
-    const currentScheduledAt = toDatetimeLocal(campaign.scheduledAt);
     if (scheduledAt !== currentScheduledAt) {
       payload.scheduledAt = scheduledAt ? toIsoString(scheduledAt) : null;
+    }
+
+    if (targetsChanged) {
+      payload.targets = parsedTargets;
     }
 
     if (Object.keys(payload).length === 0) {
@@ -127,6 +167,7 @@ function CampaignEditor({
     }
 
     setFormError("");
+    setScheduleError("");
 
     try {
       await update(campaign.id, payload);
@@ -152,17 +193,40 @@ function CampaignEditor({
     }
   };
 
+  const handleSendTestEmail = async () => {
+    const trimmedTo = testEmailTo.trim();
+    const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedTo);
+
+    if (!trimmedTo) {
+      setSendFormError("Recipient email is required.");
+      return;
+    }
+
+    if (!looksLikeEmail) {
+      setSendFormError("Please enter a valid recipient email.");
+      return;
+    }
+
+    setSendFormError("");
+
+    try {
+      await send({ to: trimmedTo });
+    } catch {
+      // Hook exposes error state.
+    }
+  };
+
   return (
     <>
-      {(updateError || deleteError || formError) && (
+      {(updateError || deleteError || formError || sendError || sendFormError) && (
         <p className="rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
-          {updateError || deleteError || formError}
+          {updateError || deleteError || formError || sendError || sendFormError}
         </p>
       )}
 
-      {(updateSuccessMessage || deleteSuccessMessage) && (
+      {(updateSuccessMessage || deleteSuccessMessage || sendSuccessMessage) && (
         <p className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-          {updateSuccessMessage || deleteSuccessMessage}
+          {updateSuccessMessage || deleteSuccessMessage || sendSuccessMessage}
         </p>
       )}
 
@@ -185,14 +249,39 @@ function CampaignEditor({
             </div>
 
             <div>
+              <label htmlFor="campaign-targets" className="text-sm font-medium text-[color:var(--muted)]">
+                Target Emails
+              </label>
+              <textarea
+                id="campaign-targets"
+                value={targets}
+                onChange={(event) => setTargets(event.target.value)}
+                disabled={isUpdating || isDeleting || campaign.status === "SENT"}
+                rows={4}
+                className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="employee1@company.com, employee2@company.com"
+              />
+              <p className="mt-2 text-xs text-[color:var(--muted)]">
+                {campaign.status === "SENT"
+                  ? "Targets are locked after a campaign has been sent."
+                  : "Edit target emails for draft or scheduled campaigns by separating them with commas."}
+              </p>
+            </div>
+
+            <div>
               <label htmlFor="campaign-status" className="text-sm font-medium text-[color:var(--muted)]">
                 Status
               </label>
               <select
                 id="campaign-status"
                 value={status}
-                onChange={(event) => setStatus(event.target.value as CampaignStatus)}
-                disabled={isUpdating || isDeleting}
+                onChange={(event) => {
+                  setStatus(event.target.value as CampaignStatus);
+                  if (scheduleError) {
+                    setScheduleError("");
+                  }
+                }}
+                disabled={isUpdating || isDeleting || campaign.status === "SENT"}
                 className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {statusOptions.map((option) => (
@@ -211,13 +300,25 @@ function CampaignEditor({
                 id="campaign-scheduled-at"
                 type="datetime-local"
                 value={scheduledAt}
-                onChange={(event) => setScheduledAt(event.target.value)}
+                onChange={(event) => {
+                  setScheduledAt(event.target.value);
+                  if (scheduleError) {
+                    setScheduleError("");
+                  }
+                }}
                 disabled={isUpdating || isDeleting}
+                min={formatDatetimeLocal(scheduleWindow.min)}
+                max={formatDatetimeLocal(scheduleWindow.max)}
+                aria-invalid={scheduleError ? "true" : "false"}
                 className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
               />
               <p className="mt-2 text-xs text-[color:var(--muted)]">
-                Clear this field if you want the backend to store a null schedule.
+                Clear this field if you want the backend to store a null schedule. New schedules must be between now
+                and 50 years ahead.
               </p>
+              {scheduleError && (
+                <p className="mt-2 text-xs text-rose-300">{scheduleError}</p>
+              )}
             </div>
           </div>
 
@@ -228,7 +329,9 @@ function CampaignEditor({
                 setName(campaign.name);
                 setStatus(campaign.status);
                 setScheduledAt(toDatetimeLocal(campaign.scheduledAt));
+                setTargets((campaign.targets ?? []).map((target) => target.email).join(", "));
                 setFormError("");
+                setScheduleError("");
               }}
               disabled={isUpdating || isDeleting}
               className="rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-2.5 text-sm font-semibold text-[color:var(--text)] transition-colors duration-200 hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50"
@@ -298,6 +401,55 @@ function CampaignEditor({
               </div>
             </dl>
           </div>
+
+          <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
+            <h3 className="text-lg font-semibold text-[color:var(--text)]">Email Action</h3>
+            <p className="mt-2 text-sm text-[color:var(--muted)]">
+              Send a backend-generated test email via <code>POST /send-test-email</code>.
+            </p>
+            <div className="mt-4 space-y-3">
+              <div>
+                <label htmlFor="test-email-to" className="text-sm font-medium text-[color:var(--muted)]">
+                  Recipient Email
+                </label>
+                <input
+                  id="test-email-to"
+                  value={testEmailTo}
+                  onChange={(event) => setTestEmailTo(event.target.value)}
+                  disabled={isSending}
+                  placeholder="employee@company.com"
+                  className="mt-2 w-full rounded-xl border border-[color:var(--border)] bg-white/5 px-4 py-3 text-sm text-[color:var(--text)] outline-none transition focus:border-cyan-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleSendTestEmail()}
+                disabled={isSending}
+                className="w-full rounded-xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-300 transition-colors duration-200 hover:border-cyan-400/30 hover:bg-cyan-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSending ? "Sending..." : "Send Test Email"}
+              </button>
+              {previewUrl && (
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex text-sm font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
+                >
+                  Open Email Preview
+                </a>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
+            <h3 className="text-lg font-semibold text-[color:var(--text)]">Current Send Behavior</h3>
+            <p className="mt-2 text-sm text-[color:var(--muted)]">
+              Creating a campaign as <code>SENT</code>, or moving a draft/scheduled campaign to <code>SENT</code>,
+              now attempts email delivery with timeout protection and returns a clear success, partial-success, or
+              timeout result.
+            </p>
+          </div>
         </div>
       </div>
     </>
@@ -306,11 +458,15 @@ function CampaignEditor({
 
 export default function CampaignDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const campaignId = useMemo(() => {
     const parsed = Number(params.id);
     return Number.isNaN(parsed) ? null : parsed;
   }, [params.id]);
   const { data: campaign, isLoading, error, refetch } = useCampaign(campaignId);
+  const showCreatedBanner = searchParams.get("created") === "1";
+  const createdMessage = searchParams.get("message");
+  const emailStatus = searchParams.get("emailStatus");
 
   return (
     <section className="space-y-8">
@@ -321,10 +477,12 @@ export default function CampaignDetailPage() {
               {isLoading ? "Loading campaign..." : campaign?.name ?? "Campaign"}
             </h2>
             {!isLoading && campaign?.status && (
-              <span className={[
-                "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                getStatusClasses(campaign.status),
-              ].join(" ")}>
+              <span
+                className={[
+                  "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
+                  getStatusClasses(campaign.status),
+                ].join(" ")}
+              >
                 {formatStatusLabel(campaign.status)}
               </span>
             )}
@@ -345,6 +503,15 @@ export default function CampaignDetailPage() {
       {error && (
         <p className="rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
           {error}
+        </p>
+      )}
+
+      {showCreatedBanner && (
+        <p className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+          {createdMessage ||
+            (emailStatus === "timed_out"
+              ? "Campaign created, but email sending timed out."
+              : "Campaign created successfully.")}
         </p>
       )}
 

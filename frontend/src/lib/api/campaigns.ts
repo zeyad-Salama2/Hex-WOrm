@@ -1,5 +1,8 @@
+import { requestJson } from "@/src/lib/api/client";
+
 export type CampaignStatus = "DRAFT" | "SCHEDULED" | "SENT";
 export type UserRole = "ADMIN" | "READ_ONLY";
+export type EmailDeliveryStatus = "skipped" | "sent" | "partial" | "timed_out" | "failed";
 
 export interface CampaignCount {
   targets: number;
@@ -12,6 +15,28 @@ export interface CampaignUser {
   role: UserRole;
 }
 
+export interface CampaignTarget {
+  id: number;
+  email: string;
+  token: string;
+  campaignId: number;
+}
+
+export interface EmailDeliverySummary {
+  status: EmailDeliveryStatus;
+  attempted?: number;
+  sent?: number;
+  failed?: number;
+  timedOut?: number;
+  details?: Array<{
+    email: string;
+    status: "sent" | "timed_out" | "failed";
+    message?: string;
+    messageId?: string;
+    previewUrl?: string | null;
+  }>;
+}
+
 export interface Campaign {
   id: number;
   name: string;
@@ -20,7 +45,7 @@ export interface Campaign {
   createdAt: string;
   createdById: number;
   createdBy?: CampaignUser;
-  targets?: unknown[];
+  targets?: CampaignTarget[];
   events?: unknown[];
   _count?: CampaignCount;
 }
@@ -36,74 +61,31 @@ export interface UpdateCampaignInput {
   name?: string;
   status?: CampaignStatus;
   scheduledAt?: string | null;
+  targets?: string[];
 }
 
-interface ApiErrorPayload {
+export interface SendTestEmailInput {
+  to: string;
+}
+
+export interface CampaignMutationResult {
+  campaign: Campaign;
   message?: string;
+  emailDelivery?: EmailDeliverySummary;
 }
 
-function getAuthToken() {
-  if (typeof document === "undefined") {
-    return "";
-  }
-
-  const tokenCookie = document.cookie
-    .split("; ")
-    .find((entry) => entry.startsWith("token="));
-
-  return tokenCookie ? decodeURIComponent(tokenCookie.slice("token=".length)) : "";
-}
-
-function buildApiUrl(path: string) {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
-  return new URL(path, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
-}
-
-async function readErrorMessage(response: Response, fallbackMessage: string) {
-  try {
-    const payload = (await response.json()) as ApiErrorPayload;
-    return payload.message || fallbackMessage;
-  } catch {
-    return fallbackMessage;
-  }
-}
-
-async function requestJson<T>(path: string, init?: RequestInit, fallbackMessage?: string): Promise<T> {
-  const token = getAuthToken();
-  const headers = new Headers(init?.headers);
-
-  headers.set("Content-Type", "application/json");
-
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  const response = await fetch(buildApiUrl(path), {
-    ...init,
-    headers,
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      await readErrorMessage(
-        response,
-        fallbackMessage || "Unable to complete the campaign request."
-      )
-    );
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json() as Promise<T>;
+export interface SendTestEmailResult {
+  message: string;
+  messageId?: string;
+  previewUrl?: string | null;
+  emailDelivery?: EmailDeliverySummary;
 }
 
 export async function listCampaigns(): Promise<Campaign[]> {
   const payload = await requestJson<{ campaigns: Campaign[] }>(
     "campaigns",
     { method: "GET" },
-    "Unable to load campaigns."
+    { fallbackMessage: "Unable to load campaigns.", requiresAuth: true }
   );
 
   return payload.campaigns;
@@ -113,44 +95,51 @@ export async function getCampaignById(id: number): Promise<Campaign> {
   const payload = await requestJson<{ campaign: Campaign }>(
     `campaigns/${id}`,
     { method: "GET" },
-    "Unable to load the selected campaign."
+    { fallbackMessage: "Unable to load the selected campaign.", requiresAuth: true }
   );
 
   return payload.campaign;
 }
 
-export async function createCampaign(input: CreateCampaignInput): Promise<Campaign> {
-  const payload = await requestJson<{ campaign: Campaign }>(
+export async function createCampaign(input: CreateCampaignInput): Promise<CampaignMutationResult> {
+  return requestJson(
     "campaigns",
     {
       method: "POST",
       body: JSON.stringify(input),
     },
-    "Unable to create campaign."
+    { fallbackMessage: "Unable to create campaign.", requiresAuth: true }
   );
-
-  return payload.campaign;
 }
 
-export async function updateCampaign(id: number, input: UpdateCampaignInput): Promise<Campaign> {
-  const payload = await requestJson<{ campaign: Campaign }>(
+export async function updateCampaign(id: number, input: UpdateCampaignInput): Promise<CampaignMutationResult> {
+  return requestJson(
     `campaigns/${id}`,
     {
       method: "PATCH",
       body: JSON.stringify(input),
     },
-    "Unable to update campaign."
+    { fallbackMessage: "Unable to update campaign.", requiresAuth: true }
   );
-
-  return payload.campaign;
 }
 
 export async function deleteCampaign(id: number): Promise<string> {
   const payload = await requestJson<{ msg: string }>(
     `campaigns/${id}`,
     { method: "DELETE" },
-    "Unable to delete campaign."
+    { fallbackMessage: "Unable to delete campaign.", requiresAuth: true }
   );
 
   return payload.msg;
+}
+
+export async function sendTestEmail(input: SendTestEmailInput): Promise<SendTestEmailResult> {
+  return requestJson(
+    "send-test-email",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+    { fallbackMessage: "Unable to send test email." }
+  );
 }

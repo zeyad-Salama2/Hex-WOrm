@@ -5,37 +5,64 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  getAuthTokenFromCookie,
+  requestJson,
+  setAuthTokenCookie,
+} from "@/src/lib/api/client";
 
 // Zod schema defines the shape + rules for our login form data.
 // - email must be a valid email format
-// - password must be at least 6 characters
+// - password must be at least 8 characters, contain an uppercase letter, and contain a number
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required.")
+    .email("Please enter a valid email address."),
+  password: z
+    .string()
+    .min(1, "Password is required.")
+    .min(8, "Password must be at least 8 characters long.")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+    .regex(/\d/, "Password must contain at least one number."),
 });
 
 // Infer TypeScript type directly from schema so types stay in sync with validation rules.
 type LoginForm = z.infer<typeof loginSchema>;
 
-function setAuthCookie(token: string) {
-  document.cookie = `token=${token}; path=/`;
-}
-
-function buildApiUrl(path: string) {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
-
-  return new URL(path, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
-}
-
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 text-zinc-300">
+          Loading sign in...
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isRegistered = searchParams.get("registered") === "1";
+  const isLoggedOut = searchParams.get("logged_out") === "1";
+  const isSessionExpired = searchParams.get("session") === "expired";
   const [submitError, setSubmitError] = useState("");
+  const [isCheckingAuth] = useState(() => Boolean(getAuthTokenFromCookie()));
+
+  useEffect(() => {
+    if (isCheckingAuth) {
+      router.replace("/dashboard");
+    }
+  }, [isCheckingAuth, router]);
 
   // useForm manages form state for us.
   // - register: wires each input to React Hook Form
@@ -59,49 +86,37 @@ export default function LoginPage() {
   const onValidSubmit = async (data: LoginForm) => {
     setSubmitError("");
     try {
-      const loginUrl = buildApiUrl("login");
-      console.log("[login] NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
-      console.log("[login] final request URL:", loginUrl);
-
-      const response = await fetch(loginUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const payload = await requestJson<{ token?: string }>(
+        "login",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
         },
-        body: JSON.stringify(data),
-      });
-      console.log("[login] response status:", response.status);
+        { fallbackMessage: "Login failed. Please try again." }
+      );
 
-      if (!response.ok) {
-        let errorMessage = "Login failed. Please try again.";
-        try {
-          const payload = (await response.json()) as { message?: string; msg?: string };
-          console.log("[login] error payload:", payload);
-          if (payload?.message || payload?.msg) {
-            errorMessage = payload.message || payload.msg || errorMessage;
-          }
-        } catch {
-          console.log("[login] error payload: unable to parse response body");
-          // Ignore JSON parse errors and keep default message.
-        }
-        setSubmitError(errorMessage);
-        return;
-      }
-
-      const payload = (await response.json()) as { token?: string };
-      console.log("[login] success payload:", payload);
       if (!payload.token) {
         setSubmitError("Login failed. No token was returned.");
         return;
       }
 
-      setAuthCookie(payload.token);
+      setAuthTokenCookie(payload.token);
       router.push("/dashboard");
-    } catch (error) {
-      console.error("[login] request failed:", error);
-      setSubmitError("Unable to reach the backend. Check that the API server is running.");
+    } catch (error: unknown) {
+      const message = error instanceof Error
+        ? error.message
+        : "Unable to reach the backend. Check that the API server is running.";
+      setSubmitError(message);
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 text-zinc-300">
+        Checking session...
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 px-6 py-12">
@@ -138,6 +153,18 @@ export default function LoginPage() {
           </p>
         )}
 
+        {isLoggedOut && (
+          <p className="mt-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+            You have been logged out.
+          </p>
+        )}
+
+        {isSessionExpired && (
+          <p className="mt-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+            Your session expired. Please sign in again.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit(onValidSubmit)} className="mt-8 space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-zinc-200">
@@ -167,7 +194,7 @@ export default function LoginPage() {
               type="password"
               {...register("password")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters, 1 uppercase, 1 number"
               autoComplete="current-password"
             />
             {errors.password && (

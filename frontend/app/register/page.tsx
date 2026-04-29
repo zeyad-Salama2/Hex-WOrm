@@ -5,19 +5,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { getAuthTokenFromCookie, requestJson } from "@/src/lib/api/client";
 
 // Zod schema defines field rules and cross-field validation.
 // - email: valid email format
-// - password: minimum 6 chars
+// - password: minimum 8 chars, one uppercase letter, one number
 // - confirmPassword: must match password
 const registerSchema = z
   .object({
-    email: z.string().email("Please enter a valid email address."),
-    password: z.string().min(6, "Password must be at least 6 characters."),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Email is required.")
+      .email("Please enter a valid email address."),
+    password: z
+      .string()
+      .min(1, "Password is required.")
+      .min(8, "Password must be at least 8 characters long.")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter.")
+      .regex(/\d/, "Password must contain at least one number."),
     confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -28,15 +38,16 @@ const registerSchema = z
 // Infer the TS type directly from schema so validation + types always stay in sync.
 type RegisterForm = z.infer<typeof registerSchema>;
 
-function buildApiUrl(path: string) {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:4000";
-
-  return new URL(path, `${apiBaseUrl.replace(/\/$/, "")}/`).toString();
-}
-
 export default function RegisterPage() {
   const router = useRouter();
   const [submitError, setSubmitError] = useState("");
+  const [isCheckingAuth] = useState(() => Boolean(getAuthTokenFromCookie()));
+
+  useEffect(() => {
+    if (isCheckingAuth) {
+      router.replace("/dashboard");
+    }
+  }, [isCheckingAuth, router]);
 
   // useForm wires inputs to form state + validation.
   // - register: connects each input
@@ -60,45 +71,36 @@ export default function RegisterPage() {
     // Clear previous API error before a new attempt.
     setSubmitError("");
     try {
-      // Submit registration data to backend.
-      const registerUrl = buildApiUrl("register");
-      console.log("[register] NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
-      console.log("[register] final request URL:", registerUrl);
-
-      const response = await fetch(registerUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      await requestJson<{ createdUser: { id: number; email: string } }>(
+        "register",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+          }),
         },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
-
-      // If backend returns an error, show message and stop.
-      if (!response.ok) {
-        let errorMessage = "Registration failed. Please try again.";
-        try {
-          const payload = (await response.json()) as { message?: string; msg?: string };
-          if (payload?.message || payload?.msg) {
-            errorMessage = payload.message || payload.msg || errorMessage;
-          }
-        } catch {
-          // Ignore JSON parse errors and keep default message.
-        }
-        setSubmitError(errorMessage);
-        return;
-      }
-    } catch (error) {
-      console.error("[register] request failed:", error);
-      setSubmitError("Unable to reach the backend. Check that the API server is running.");
+        { fallbackMessage: "Registration failed. Please try again." }
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error
+        ? error.message
+        : "Unable to reach the backend. Check that the API server is running.";
+      setSubmitError(message);
       return;
     }
 
     // Success path: keep it simple for now, then send user to login.
     router.push("/login?registered=1");
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 text-zinc-300">
+        Checking session...
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 px-6 py-12">
@@ -158,7 +160,7 @@ export default function RegisterPage() {
               type="password"
               {...register("password")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition hover:border-white/20 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters, 1 uppercase, 1 number"
               autoComplete="new-password"
             />
             {errors.password && (
