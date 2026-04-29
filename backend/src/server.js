@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const prisma = require("../prisma/prisma.js");
 const trackingRouter = require("./routes/tracking_routes.js");
 
@@ -11,6 +12,11 @@ const notFoundMiddleware = require("./middleware/not_found.js");
 const errorHandlerMiddleware = require("./middleware/error_handler.js");
 
 const app = express();
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
 app.use(cors());
 app.locals.dbStatus = {
   ready: false,
