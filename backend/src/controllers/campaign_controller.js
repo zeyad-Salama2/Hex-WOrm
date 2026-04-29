@@ -6,6 +6,37 @@ const { sendEmail, DEFAULT_EMAIL_TIMEOUT_MS } = require("../services/email_servi
 const campaignRepo = new CampaignRepository();
 const MAX_SCHEDULE_YEARS_AHEAD = 50;
 
+const normalizeBaseUrl = (value) => {
+  if (!value || typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/$/, "");
+  }
+
+  return `https://${trimmed.replace(/\/$/, "")}`;
+};
+
+const getRailwayPublicUrl = () => normalizeBaseUrl(process.env.RAILWAY_PUBLIC_DOMAIN);
+
+const getBackendBaseUrl = () =>
+  normalizeBaseUrl(process.env.APP_URL) ||
+  normalizeBaseUrl(process.env.BACKEND_URL) ||
+  getRailwayPublicUrl() ||
+  `http://localhost:${process.env.APP_PORT || process.env.PORT || 4000}`;
+
+const getFrontendBaseUrl = () =>
+  normalizeBaseUrl(process.env.FRONTEND_URL) ||
+  normalizeBaseUrl(process.env.NEXT_PUBLIC_APP_URL) ||
+  normalizeBaseUrl(process.env.PUBLIC_FRONTEND_URL) ||
+  "http://localhost:3000";
+
 const requireAuthenticatedUserId = (req) => {
   const userId = req.user?.id;
 
@@ -69,8 +100,8 @@ const parseTargets = (targets) => {
 };
 
 const buildCampaignEmailLinks = (target) => {
-  const backendBaseUrl = process.env.APP_URL || `http://localhost:${process.env.APP_PORT || 4000}`;
-  const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  const backendBaseUrl = getBackendBaseUrl();
+  const frontendBaseUrl = getFrontendBaseUrl();
 
   return {
     openUrl: `${backendBaseUrl}/track/open?token=${target.token}`,

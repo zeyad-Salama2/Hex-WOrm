@@ -7,6 +7,29 @@ const transparentGifBuffer = Buffer.from(
   "hex"
 );
 
+const normalizeBaseUrl = (value) => {
+  if (!value || typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/$/, "");
+  }
+
+  return `https://${trimmed.replace(/\/$/, "")}`;
+};
+
+const getFrontendBaseUrl = () =>
+  normalizeBaseUrl(process.env.FRONTEND_URL) ||
+  normalizeBaseUrl(process.env.NEXT_PUBLIC_APP_URL) ||
+  normalizeBaseUrl(process.env.PUBLIC_FRONTEND_URL) ||
+  "http://localhost:3000";
+
 const trackOpen = async (req, res, next) => {
   try {
     const { token } = req.query;
@@ -57,7 +80,7 @@ const trackClick = async (req, res, next) => {
     const safeRedirect =
       typeof redirect === "string" && redirect.trim()
         ? redirect
-        : `${process.env.FRONTEND_URL || "http://localhost:3000"}/landing?token=${token}`;
+        : `${getFrontendBaseUrl()}/landing?token=${token}`;
 
     return res.redirect(safeRedirect);
   } catch (error) {
