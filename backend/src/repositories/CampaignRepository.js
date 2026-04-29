@@ -20,7 +20,19 @@ const baseInclude = {
 const detailInclude = {
   ...baseInclude,
   targets: true,
-  events: true,
+  events: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      target: {
+        select: {
+          id: true,
+          email: true,
+        },
+      },
+    },
+  },
 };
 
 class CampaignRepository {

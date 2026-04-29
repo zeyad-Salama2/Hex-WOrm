@@ -22,6 +22,18 @@ export interface CampaignTarget {
   campaignId: number;
 }
 
+export interface CampaignEvent {
+  id: number;
+  type: "OPEN" | "CLICK" | "SUBMIT";
+  createdAt: string;
+  campaignId: number;
+  targetId: number;
+  target?: {
+    id: number;
+    email: string;
+  };
+}
+
 export interface EmailDeliverySummary {
   status: EmailDeliveryStatus;
   attempted?: number;
@@ -46,7 +58,7 @@ export interface Campaign {
   createdById: number;
   createdBy?: CampaignUser;
   targets?: CampaignTarget[];
-  events?: unknown[];
+  events?: CampaignEvent[];
   _count?: CampaignCount;
 }
 

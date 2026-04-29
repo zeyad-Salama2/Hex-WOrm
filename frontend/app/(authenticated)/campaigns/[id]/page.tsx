@@ -14,7 +14,7 @@ import {
   getScheduleWindow,
   validateScheduledAtValue,
 } from "@/src/lib/campaignSchedule";
-import type { Campaign, CampaignStatus, UpdateCampaignInput } from "@/src/lib/api/campaigns";
+import type { Campaign, CampaignEvent, CampaignStatus, UpdateCampaignInput } from "@/src/lib/api/campaigns";
 
 function getStatusClasses(status: CampaignStatus) {
   switch (status) {
@@ -48,6 +48,19 @@ function formatDateTime(value: string | null | undefined) {
   }
 
   return new Date(value).toLocaleString();
+}
+
+function formatEventLabel(type: CampaignEvent["type"]) {
+  switch (type) {
+    case "OPEN":
+      return "Opened email";
+    case "CLICK":
+      return "Clicked link";
+    case "SUBMIT":
+      return "Submitted form";
+    default:
+      return type;
+  }
 }
 
 function toDatetimeLocal(value: string | null | undefined) {
@@ -451,6 +464,46 @@ function CampaignEditor({
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-6">
+        <h3 className="text-lg font-semibold text-[color:var(--text)]">Tracking Activity</h3>
+        <p className="mt-2 text-sm text-[color:var(--muted)]">
+          See which target opened the email, clicked the phishing link, or submitted the landing page form.
+        </p>
+
+        {!campaign.events?.length ? (
+          <p className="mt-6 text-sm text-[color:var(--muted)]">
+            No tracking events recorded yet.
+          </p>
+        ) : (
+          <div className="mt-6 overflow-hidden rounded-xl border border-[color:var(--border)]">
+            <table className="min-w-full divide-y divide-[color:var(--border)] text-left text-sm">
+              <thead className="bg-white/5 text-[color:var(--muted)]">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Target</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
+                  <th className="px-4 py-3 font-medium">Time</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[color:var(--border)]">
+                {campaign.events.map((event) => (
+                  <tr key={event.id}>
+                    <td className="px-4 py-3 text-[color:var(--text)]">
+                      {event.target?.email ?? "Unknown target"}
+                    </td>
+                    <td className="px-4 py-3 text-[color:var(--text)]">
+                      {formatEventLabel(event.type)}
+                    </td>
+                    <td className="px-4 py-3 text-[color:var(--text)]">
+                      {formatDateTime(event.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </>
   );
